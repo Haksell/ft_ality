@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name:          ft-ality
-version:       1
+version:       42.0
 author:        amyroshn and axbrisse
 maintainer:    amyroshn@student.42.fr and axbrisse@student.42.fr
 build-type:    Simple
@@ -14,8 +14,4 @@ executable ft_ality
   other-modules:    Colors
   hs-source-dirs:   srcs
   default-language: Haskell2010
-  build-depends:
-    , base      >=4.7 && <5
-    , filepath  >=1.4 && <1.5
-    , random    >=1.2 && <1.3
-    , split     >=0.2 && <0.3
+  build-depends:    base >=4.17 && <5
