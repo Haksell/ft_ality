@@ -1,6 +1,6 @@
 import Colors (Color (..), putColorful)
 import Control.Monad (when)
-import Data.Char (isDigit, isLower, isUpper)
+import Data.Char (isDigit, isLower, isUpper, toUpper)
 import System.IO
   ( BufferMode (NoBuffering),
     hSetBuffering,
@@ -35,5 +35,5 @@ displayColored :: Char -> IO ()
 displayColored char
   | isDigit char = putColorful Yellow [char]
   | isUpper char = putColorful Red [char]
-  | isLower char = putColorful Blue [char]
+  | isLower char = putColorful Red [toUpper char]
   | otherwise = return ()
