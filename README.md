@@ -17,6 +17,7 @@
 -   [ ] All recursion is tail-recursive
 -   [ ] No function bigger than 20 lines
 -   [ ] No global utility functions if they are not reused
+-   [ ] Always explicit exports
 
 ### Links
 

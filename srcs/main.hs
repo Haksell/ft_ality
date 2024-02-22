@@ -1,6 +1,7 @@
 import Colors (Color (..), putColorful)
 import Control.Monad (when)
 import Data.Char (isDigit, isLower, isUpper, toUpper)
+import Parsing (ParsedContent (..), parseFile, printCombo, printMove)
 import System.IO
   ( BufferMode (NoBuffering),
     hSetBuffering,
@@ -34,6 +35,11 @@ loop = do
 
 main :: IO ()
 main = do
+  parsedContent <- parseFile "grammars/valid/mk9_baraka.gmr"
+  putStrLn "Moves:"
+  mapM_ printMove (moves parsedContent)
+  putStrLn "Combos:"
+  mapM_ printCombo (combos parsedContent)
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
   loop
