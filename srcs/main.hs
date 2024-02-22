@@ -8,11 +8,12 @@ import System.IO
     stdin,
   )
 
-main :: IO ()
-main = do
-  hSetEcho stdin False
-  hSetBuffering stdin NoBuffering
-  loop
+displayColored :: Char -> IO ()
+displayColored char
+  | isDigit char = putColorful Yellow [char]
+  | isUpper char = putColorful Red [char]
+  | isLower char = putColorful Red [toUpper char]
+  | otherwise = return ()
 
 loop :: IO ()
 loop = do
@@ -31,9 +32,8 @@ loop = do
     _ -> displayColored char
   loop
 
-displayColored :: Char -> IO ()
-displayColored char
-  | isDigit char = putColorful Yellow [char]
-  | isUpper char = putColorful Red [char]
-  | isLower char = putColorful Red [toUpper char]
-  | otherwise = return ()
+main :: IO ()
+main = do
+  hSetEcho stdin False
+  hSetBuffering stdin NoBuffering
+  loop
