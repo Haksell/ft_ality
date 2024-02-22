@@ -2,10 +2,14 @@
 
 -   [x] Read input character by character
 -   [ ] Parse .gmr file
--   [ ] Examples of valid files
--   [ ] Examples of invalid files
 -   [ ] Simple tester (even just `make valid` and `make invalid`)
--   [ ] Actual examples of using DFAs
+-   [ ] Create automaton
+
+### Grammar files
+
+-   [ ] `mk9.gmr` (WIP)
+-   [ ] `mk9_baraka.gmr` (WIP)
+-   [ ] Some invalid files...
 
 ### Code
 
@@ -13,3 +17,7 @@
 -   [ ] All recursion is tail-recursive
 -   [ ] No function bigger than 20 lines
 -   [ ] No global utility functions if they are not reused
+
+### Links
+
+-   [Mortal Kombat 9 Combos](https://www.eventhubs.com/guides/2012/nov/30/mortal-kombat-9-moves-characters-combos-and-strategy-guides/)

@@ -1,0 +1,59 @@
+Q/Block
+W/Flip Stance
+E/Tag
+A/Throw
+S/[BK]
+D/[BP]
+Z/[FK]
+X/[FP]
+Up/Up
+Right/Right
+Down/Down
+Left/Left
+
+Down,[BP]/Uppercut/Baraka
+Left,[BK]/Blade Slash/Baraka
+Left,[BP]/Cross Swipe/Baraka
+Right,[BP]/Gut Strike/Baraka
+Left,[FK]/Foot Stomp/Baraka
+Up,[FK]/Hop Kick/Baraka
+Right,[FP]/Quick Knee/Baraka
+Up,[FP]/Big Legs/Baraka
+Left,[FP]/Sweep/Baraka
+Left,Throw/Throw Away/Baraka
+Right,Throw/Throw Towards/Baraka
+[BK],[BP],[BK]/Tarkatan Rush/Baraka
+[BK],[BP],[BP]/Painful Swipes/Baraka
+[BK],[BP],Left,[FK]/Tricky Fury/Baraka
+Left,[BK],[BK]/Cut 'Em Loose/Baraka
+Left,[BK],Right,[BP]/Splinter/Baraka
+[BP],[BK],[BP]/Cold Steel/Baraka
+Tears of Pain/[BP],[BP],[BK],[BP]/Baraka
+Left,[BP],Right,[BP]/Tarkatan Push/Baraka
+Right,[BP],[FP]/Horror Show/Baraka
+Right,[BP],[BP]/Outworld Bash/Baraka
+[FK],Left,[FK]/Tarkatan Blows/Baraka
+Left,[FK],[BK],Right,[BK]/Open Wound/Baraka
+Left,[FK],[BP],[BP]/Easy Kill/Baraka
+Right,[FP],[FP]/Doom Kicks/Baraka
+Left,[FK],[BK],Tag/Bloody Mess/Baraka
+[BK],[BP],Tag/Skinned Alive/Baraka
+[BP],[BK],Tag/Killer Kuts/Baraka
+[BP],[BP],Tag/Have At It/Baraka
+Down,Right,[BP]/Blade Charge/Baraka
+Down,Left,[BP]/Spark/Baraka
+Left,Left,[BK]/Chop Chop/Baraka
+Down,Left,[FK]/Blade Spin/Baraka
+Down,Right,[BK]/Slices/Baraka
+Down,Right,[BP],Block/Blade Rush/Baraka
+Down,Left,[BP],Block/Sparked/Baraka
+Left,Left,[BK],Block/Chopchop Shop/Baraka
+Down,Left,[FK],Block/Spinner/Baraka
+Down,Right,One,Block/Slicer/Baraka
+Down,Right,Tag/Tag Attack/Baraka
+Down,Left,Tag/Tag Assist/Baraka
+Flip Stance,Block/Nail and Impale/Baraka
+Left,Right,Down,Right,[BK]/Up the Middle/Baraka
+Right,Right,Down,Down,[FK]/Take a Spin/Baraka
+Down,Down,Down,Down,[FK]/Stage Fatality/Baraka
+Right,Left,Right,[FP]/Babality/Baraka
