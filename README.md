@@ -13,7 +13,7 @@
 
 ### Code
 
--   [ ] Modules (main.hs, Parsing.hs, Colors.hs, Automaton.hs)
+-   [ ] Modules (main.hs, ParseArgs.hs, ParseFile.hs, Colors.hs, Automaton.hs)
 -   [ ] All recursion is tail-recursive
 -   [ ] No function bigger than 20 lines
 -   [ ] No global utility functions if they are not reused
