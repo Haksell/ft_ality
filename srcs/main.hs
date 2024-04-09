@@ -2,7 +2,7 @@
 
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Data.Char (isAlpha, isAscii, toUpper)
+import Data.Char (isAlpha, isAscii, isSpace, toUpper)
 import System.IO
   ( BufferMode (NoBuffering),
     hReady,
@@ -11,14 +11,22 @@ import System.IO
     stdin,
   )
 
-type ParsedContent = (String, String)
+type ParsedContent = (String, String) -- WIP
+
+trim :: String -> String
+trim = f . f
+  where
+    f = reverse . dropWhile isSpace
 
 parseContent :: String -> ParsedContent
 parseContent _ = ("ok", "ok")
 
 parseFile :: FilePath -> IO ParsedContent
 parseFile filePath = do
-  content <- readFile filePath
+  content <- trim <$> readFile filePath
+  let (actionsSection, combosSection) = break (== "") $ lines content
+  print actionsSection
+  print combosSection
   return $ parseContent content
 
 isAsciiLetter :: Char -> Bool
