@@ -33,8 +33,43 @@ loop = do
     _ -> displayColored char
   loop
 
+data CommandLineArgs = CommandLineArgs
+  { argJsonFilePath :: String,
+    argInput :: Maybe String,
+    argQuiet :: Bool,
+    argComplex :: Maybe String,
+    argMaxSteps :: Maybe Integer
+  }
+
+positiveInteger :: ReadM Integer
+positiveInteger = do
+  value <- auto
+  if value > 0
+    then return value
+    else readerError "max-steps must be a positive integer"
+
+complexityArgDesctiption :: String
+complexityArgDesctiption =
+  intercalate
+    "\n"
+    [ "complexity pattern to match. \"[]\" characters is reserved for the patter matching.",
+      "Do not use the reserved characters in the machine alphabet.",
+      "Such pattern for unary_add algo: \"[1]+[1]=\" translates to:",
+      "\"[Any number of 1s] + [Any number of 1s] =\", then to input like \"111+111=\", \"11111+11111=\", etc."
+    ]
+
+parseCommandLineArgs :: Parser CommandLineArgs
+parseCommandLineArgs =
+  CommandLineArgs
+    <$> argument str (metavar "machine.json" <> help "json description of the machine")
+    <*> optional (argument str (metavar "input" <> help "input of the machine"))
+    <*> switch (long "quiet" <> short 'q' <> help "only show final tape")
+    <*> optional (strOption (long "complexity" <> metavar "pattern" <> short 'c' <> help complexityArgDesctiption))
+    <*> optional (option positiveInteger (long "max-steps" <> short 'm' <> metavar "n" <> help "maximum number of iterations (must be positive)"))
+
 main :: IO ()
 main = do
+  args <- execParser $ info (parseCommandLineArgs <**> helper) fullDesc
   parsedContent <- parseFile "grammars/valid/mk9_baraka.gmr"
   putStrLn "Moves:"
   mapM_ printMove (moves parsedContent)
