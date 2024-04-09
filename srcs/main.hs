@@ -1,10 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Action (Action (..), parseActions)
+import Action (parseActions)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
 import Data.Char (isAlpha, isAscii, isSpace, toUpper)
+import qualified Data.Map as Map
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import System.IO (
   BufferMode (NoBuffering),
@@ -15,7 +16,7 @@ import System.IO (
  )
 import Utils (trim)
 
-type ParsedContent = ([Action], [Combo]) -- WIP
+type ParsedContent = ((Map.Map String String), [Combo]) -- WIP
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
@@ -62,7 +63,7 @@ getAction = do
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getAction
 
-execute :: [Action] -> [Combo] -> IO ()
+execute :: (Map.Map String String) -> [Combo] -> IO ()
 execute keymap combos = do
   action <- getAction
   putColorful Green action
