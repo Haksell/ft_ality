@@ -1,6 +1,6 @@
 cabal-version: 3.0
 name:          ft-ality
-version:       42.0
+version:       1
 author:        amyroshn and axbrisse
 maintainer:    amyroshn@student.42.fr and axbrisse@student.42.fr
 build-type:    Simple
@@ -10,14 +10,25 @@ common warnings
 
 executable ft_ality
   import:           warnings
-  main-is:          main.hs
+  main-is:          Main.hs
   other-modules:
-    Colors
-    Parsing
+    Complexity
+    Executor
+    Machine
+    ParsedMachine
 
   hs-source-dirs:   srcs
   default-language: Haskell2010
+
+  -- TODO: remove unused libraries
   build-depends:
-    , base                  >=4.17 && <5
+    , aeson
+    , aeson-pretty
+    , base
+    , bytestring
+    , containers
     , optparse-applicative
-    , split                 >=0.2  && <0.3
+    , random
+    , random-shuffle
+    , text
+    , unordered-containers
