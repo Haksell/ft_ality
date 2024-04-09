@@ -51,12 +51,11 @@ getAction = do
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getAction
 
--- TODO: accept keymap and combos
-execute :: IO ()
-execute = do
+execute :: String -> String -> IO ()
+execute _ _ = do
   action <- getAction
   putColorful Green action
-  execute
+  execute "" ""
 
 main :: IO ()
 main = do
@@ -64,7 +63,4 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  putStrLn $ if argDebug args then "debug" else "quiet"
-  putStrLn keymap
-  putStrLn combos
-  execute
+  execute keymap combos
