@@ -13,9 +13,8 @@ parseActions actionsSection = do
   when (length actions /= Map.size mappedActions) $ do
     putStrLn "Duplicate action keys have been found in the grammar file."
     exitWith (ExitFailure 1)
-  mapM_ (putStrLn . show) actions
+  mapM_ print actions
   return mappedActions
-
 
 parseAction :: String -> IO (String, String)
 parseAction line = do
