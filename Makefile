@@ -8,4 +8,4 @@ run:
 	@cabal run -v0 exe:ft_ality -- 
 
 clean:
-	rm -rf dist-newstyle
+	rm -rf build dist-newstyle .cabal*

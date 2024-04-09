@@ -18,5 +18,6 @@ executable ft_ality
   hs-source-dirs:   srcs
   default-language: Haskell2010
   build-depends:
-    , base   >=4.17 && <5
-    , split  >=0.2  && <0.3
+    , base                  >=4.17 && <5
+    , optparse-applicative
+    , split                 >=0.2  && <0.3
