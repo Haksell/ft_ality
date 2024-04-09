@@ -10,7 +10,7 @@ common warnings
 
 executable ft_ality
   import:           warnings
-  main-is:          Main.hs
+  main-is:          main.hs
   other-modules:
     Complexity
     Executor
