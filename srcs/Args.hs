@@ -3,29 +3,29 @@
 module Args (Args (..), parseAndValidateArgs) where
 
 import Data.List (isSuffixOf)
-import Options.Applicative
-  ( Parser,
-    argument,
-    execParser,
-    fullDesc,
-    help,
-    helper,
-    info,
-    long,
-    metavar,
-    short,
-    str,
-    switch,
-    (<**>),
-  )
-import System.Exit (ExitCode (ExitFailure), exitWith)
+import Options.Applicative (
+  Parser,
+  argument,
+  execParser,
+  fullDesc,
+  help,
+  helper,
+  info,
+  long,
+  metavar,
+  short,
+  str,
+  switch,
+  (<**>),
+ )
+import Utils (panic)
 
 grammarExtension :: String
 grammarExtension = ".gmr"
 
 data Args = Args
-  { argFilename :: FilePath,
-    argDebug :: Bool
+  { argFilename :: FilePath
+  , argDebug :: Bool
   }
 
 parseArgs :: Parser Args
@@ -39,8 +39,7 @@ validateArgs args =
   if grammarExtension `isSuffixOf` argFilename args
     then return args
     else do
-      putStrLn $ "Error: the file path must end with '" ++ grammarExtension ++ "'."
-      exitWith (ExitFailure 1)
+      panic $ "Error: the file path must end with '" ++ grammarExtension ++ "'."
 
 parseAndValidateArgs :: IO Args
 parseAndValidateArgs = do

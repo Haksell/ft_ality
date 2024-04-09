@@ -6,26 +6,25 @@ import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
 import Data.Char (isAlpha, isAscii, toUpper)
 import qualified Data.Map as Map
-import System.Exit (ExitCode (ExitFailure), exitWith)
-import System.IO
-  ( BufferMode (NoBuffering),
-    hReady,
-    hSetBuffering,
-    hSetEcho,
-    stdin,
-  )
-import Utils (trim)
+import System.IO (
+  BufferMode (NoBuffering),
+  hReady,
+  hSetBuffering,
+  hSetEcho,
+  stdin,
+ )
+import Utils (panic, trim)
 
 type ParsedContent = (Map.Map String String, [Combo]) -- WIP
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
-  where
-    f "" [] = []
-    f line [] = [[line]]
-    f "" ([] : acc) = [] : acc
-    f "" acc = [] : acc
-    f line (x : xs) = (line : x) : xs
+ where
+  f "" [] = []
+  f line [] = [[line]]
+  f "" ([] : acc) = [] : acc
+  f "" acc = [] : acc
+  f line (x : xs) = (line : x) : xs
 
 parseFile :: FilePath -> IO ParsedContent
 parseFile filename = do
@@ -35,22 +34,21 @@ parseFile filename = do
   case sections of
     [actionsSection, combosSection] -> do
       actions <- parseActions actionsSection
-      let combos = parseCombos combosSection
+      combos <- parseCombos combosSection
       return (actions, combos)
     _ -> do
-      putStrLn $ "Error: wrong number of sections: " ++ show (length sections)
-      exitWith (ExitFailure 1)
+      panic $ "Error: wrong number of sections: " ++ show (length sections)
 
 isAsciiLetter :: Char -> Bool
 isAsciiLetter c = isAscii c && isAlpha c
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
-  where
-    getKeyPress' chars = do
-      char <- getChar
-      more <- hReady stdin
-      (if more then getKeyPress' else return) (char : chars)
+ where
+  getKeyPress' chars = do
+    char <- getChar
+    more <- hReady stdin
+    (if more then getKeyPress' else return) (char : chars)
 
 getAction :: IO String
 getAction = do
@@ -63,7 +61,7 @@ getAction = do
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getAction
 
-execute :: (Map.Map String String) -> [Combo] -> IO ()
+execute :: Map.Map String String -> [Combo] -> IO ()
 execute keymap combos = do
   action <- getAction
   putColorful Green action
