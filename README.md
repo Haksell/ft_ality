@@ -3,13 +3,8 @@
 -   [x] Read input character by character
 -   [ ] Parse .gmr file
 -   [ ] Simple tester (even just `make valid` and `make invalid`)
--   [ ] Create automaton
-
-### Grammar files
-
--   [ ] `mk9.gmr` (WIP)
--   [ ] `mk9_baraka.gmr` (WIP)
 -   [ ] Some invalid files...
+-   [ ] Create automaton
 
 ### Code
 
