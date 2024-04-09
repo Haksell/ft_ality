@@ -1,16 +1,29 @@
 module Action (parseActions) where
 
+import Control.Monad (when)
 import qualified Data.Map as Map
+import System.Exit (ExitCode (ExitFailure), exitWith)
 import Utils (trim)
 
 parseActions :: [String] -> IO (Map.Map String String)
 parseActions actionsSection = do
   putStrLn "action section"
-  let actions = map parseAction actionsSection
-  putStrLn (unlines $ map show actions)
-  return $ Map.fromList actions
+  actions <- mapM parseAction actionsSection
+  let mappedActions = Map.fromList actions
+  when (length actions /= Map.size mappedActions) $ do
+    putStrLn "Duplicate action keys have been found in the grammar file."
+    exitWith (ExitFailure 1)
+  mapM_ (putStrLn . show) actions
+  return mappedActions
 
-parseAction :: String -> (String, String)
-parseAction line =
+
+parseAction :: String -> IO (String, String)
+parseAction line = do
   let (k, a) = break (== '/') line
-   in (trim k, trim $ drop 1 a)
+      key = trim k
+      value = trim $ drop 1 a
+  if null key || null value
+    then do
+      putStrLn "Empty action key or action value has been found in the grammar file."
+      exitWith (ExitFailure 1)
+    else return (key, value)
