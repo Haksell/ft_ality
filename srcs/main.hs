@@ -25,7 +25,7 @@ trim = f . f
   where
     f = reverse . dropWhile isSpace
 
--- TODO: fix on grammars/invalid/empty.gmr and grammars/invalid/newlines.gmr
+-- Only works on trimmed input. Returns [[]] on an empty input instead of []
 splitSections :: [String] -> [[String]]
 splitSections = foldr f [[]]
   where
