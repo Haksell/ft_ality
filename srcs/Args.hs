@@ -24,7 +24,7 @@ grammarExtension :: String
 grammarExtension = ".gmr"
 
 data Args = Args
-  { argFilename :: String,
+  { argFilename :: FilePath,
     argDebug :: Bool
   }
 
