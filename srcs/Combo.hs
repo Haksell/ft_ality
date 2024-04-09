@@ -1,38 +1,31 @@
 module Combo (Combo (..), parseCombos) where
 
-import Utils (trim)
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 
 data Combo = Combo
-  { currentStateIndex :: Int,
-    states :: [String],
-    characterName :: String
+  { comboLen :: Int,
+    comboStr :: String,
+    comboState :: Int,
+    comboDFA :: [Map.Map String Int]
   }
   deriving (Show)
 
-parseCombos :: [String] -> IO [Combo]
-parseCombos combosSection = do
-  putStrLn "combos section"
-  let combos = map parseCombo combosSection
-  putStrLn (unlines $ map show combos)
-  return combos
+type ComboCache = Set.Set (String, String)
 
-parseCombo :: String -> Combo
-parseCombo line =
-  let (statesAndMove, character) = break (== '/') $ reverse line
-      (move, statesStr) = break (== '/') $ reverse statesAndMove
-   in Combo
-        { currentStateIndex = 0,
-          states = parseStates $ reverse statesStr,
-          characterName = drop 1 character
-        }
+parseCombo :: String -> ComboCache -> Combo
+parseCombo comboLine comboCache = do
+  Combo
+    { Combo.comboLen = 0,
+      Combo.comboStr = "",
+      Combo.comboState = 0,
+      Combo.comboDFA = []
+    }
 
-parseStates :: String -> [String]
-parseStates statesStr = map trim $ splitOn ',' statesStr
+parseCombos' :: [String] -> [Combo] -> ComboCache -> [Combo]
+parseCombos' [] prevCombos _ = prevCombos
+parseCombos' (comboLine : comboLines) prevCombos cache =
+  parseCombos' comboLines (parseCombo comboLine cache : prevCombos) cache
 
-splitOn :: Char -> String -> [String]
-splitOn delimiter = foldr f [[]]
-  where
-    f c l@(x : xs)
-      | c == delimiter = [] : l
-      | otherwise = (c : x) : xs
-    f _ [] = []
+parseCombos :: [String] -> [Combo]
+parseCombos comboLines = parseCombos' comboLines [] Set.empty
