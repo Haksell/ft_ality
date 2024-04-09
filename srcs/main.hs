@@ -47,11 +47,11 @@ loop = do
 
 main :: IO ()
 main = do
-  args <- parseAndValidateArgs
-  putColorful Red $ if argDebug args then "debug" else "quiet"
-  (keymap, combos) <- parseFile (argFilename args)
-  putColorful Green keymap
-  putColorful Blue combos
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
+  args <- parseAndValidateArgs
+  (keymap, combos) <- parseFile (argFilename args)
+  putStrLn $ if argDebug args then "debug" else "quiet"
+  putStrLn keymap
+  putStrLn combos
   loop
