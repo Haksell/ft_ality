@@ -2,7 +2,7 @@ help:
 	@echo TODO
 
 install:
-	cabal update && cabal install
+	cabal update && cabal install --overwrite-policy=always
 
 run:
 	@cabal run -v0 exe:ft_ality -- 
