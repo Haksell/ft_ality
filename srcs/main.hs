@@ -16,7 +16,7 @@ import System.IO
   )
 import Utils (trim)
 
-type ParsedContent = ((Map.Map String String), [Combo]) -- WIP
+type ParsedContent = (Map.Map String String, [Combo]) -- WIP
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
@@ -35,7 +35,7 @@ parseFile filename = do
   case sections of
     [actionsSection, combosSection] -> do
       actions <- parseActions actionsSection
-      combos <- parseCombos combosSection
+      let combos = parseCombos combosSection
       return (actions, combos)
     _ -> do
       putStrLn $ "Error: wrong number of sections: " ++ show (length sections)

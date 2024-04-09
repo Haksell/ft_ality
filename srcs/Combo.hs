@@ -13,19 +13,22 @@ data Combo = Combo
 
 type ComboCache = Set.Set (String, String)
 
-parseCombo :: String -> ComboCache -> Combo
+parseCombo :: String -> ComboCache -> (Combo, ComboCache)
 parseCombo comboLine comboCache = do
-  Combo
-    { Combo.comboLen = 0,
-      Combo.comboStr = "",
-      Combo.comboState = 0,
-      Combo.comboDFA = []
-    }
+  ( Combo
+      { Combo.comboLen = 0,
+        Combo.comboStr = "",
+        Combo.comboState = 0,
+        Combo.comboDFA = []
+      },
+    comboCache
+    )
 
 parseCombos' :: [String] -> [Combo] -> ComboCache -> [Combo]
 parseCombos' [] prevCombos _ = prevCombos
-parseCombos' (comboLine : comboLines) prevCombos cache =
-  parseCombos' comboLines (parseCombo comboLine cache : prevCombos) cache
+parseCombos' (comboLine : comboLines) prevCombos comboCache = do
+  let (combo, newComboCache) = parseCombo comboLine comboCache
+  parseCombos' comboLines (combo : prevCombos) newComboCache
 
 parseCombos :: [String] -> [Combo]
 parseCombos comboLines = parseCombos' comboLines [] Set.empty
