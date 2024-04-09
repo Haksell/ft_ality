@@ -25,14 +25,14 @@ trim = f . f
   where
     f = reverse . dropWhile isSpace
 
--- Only works on trimmed input. Returns [[]] on an empty input instead of []
 splitSections :: [String] -> [[String]]
-splitSections = foldr f [[]]
+splitSections = foldr f []
   where
+    f "" [] = []
+    f line [] = [[line]]
     f "" ([] : acc) = [] : acc
     f "" acc = [] : acc
     f line (x : xs) = (line : x) : xs
-    f _ [] = []
 
 parseFile :: FilePath -> IO ParsedContent
 parseFile filename = do
