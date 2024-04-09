@@ -15,6 +15,9 @@ data Combo = Combo
 
 type ComboCache = Set.Set (String, String)
 
+buildDFA :: [String] -> [Map.Map String Int]
+buildDFA _ = []
+
 -- TODO: maybe handle action not in keymap
 newCombo :: [String] -> String -> String -> Combo
 newCombo actions name fighter =
@@ -22,7 +25,7 @@ newCombo actions name fighter =
     { Combo.comboLen = length actions
     , Combo.comboStr = name ++ "(" ++ fighter ++ ") !!"
     , Combo.comboState = 0
-    , Combo.comboDFA = []
+    , Combo.comboDFA = buildDFA actions
     }
 
 parseCombo :: String -> ComboCache -> IO (Combo, ComboCache)

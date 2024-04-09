@@ -35,6 +35,7 @@ parseFile filename = do
     [actionsSection, combosSection] -> do
       actions <- parseActions actionsSection
       combos <- parseCombos combosSection
+      print combos
       return (actions, combos)
     _ -> do
       panic $ "Error: wrong number of sections: " ++ show (length sections)
