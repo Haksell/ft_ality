@@ -1,5 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Colors (Color (..), putColorful)
 import Data.List (isSuffixOf)
 import Options.Applicative
   ( Parser,
@@ -37,5 +38,5 @@ main = do
   if ".gmr" `isSuffixOf` filename
     then do
       fileContents <- readFile filename
-      putStrLn fileContents
+      putColorful Green fileContents
     else putStrLn "Error: the file path must end with '.gmr'."
