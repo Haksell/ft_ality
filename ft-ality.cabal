@@ -12,23 +12,8 @@ executable ft_ality
   import:           warnings
   main-is:          main.hs
   other-modules:
-    Complexity
-    Executor
-    Machine
-    ParsedMachine
-
   hs-source-dirs:   srcs
   default-language: Haskell2010
-
-  -- TODO: remove unused libraries
   build-depends:
-    , aeson
-    , aeson-pretty
     , base
-    , bytestring
-    , containers
     , optparse-applicative
-    , random
-    , random-shuffle
-    , text
-    , unordered-containers
