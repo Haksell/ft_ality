@@ -30,20 +30,22 @@ parseArgs =
     <$> argument str (metavar "grammar.gmr" <> help "Description of the keymap and combos")
     <*> switch (long "debug" <> short 'd' <> help "Debug mode")
 
-validateArgs :: Args -> Either Args String
+validateArgs :: Args -> IO Args
 validateArgs args =
   if ".gmr" `isSuffixOf` argFilename args
-    then Left args
-    else Right "Error: the file path must end with '.gmr'."
+    then return args
+    else do
+      putStrLn "Error: the file path must end with '.gmr'."
+      exitWith (ExitFailure 1)
+
+parseAndValidateArgs :: IO Args
+parseAndValidateArgs = do
+  args <- execParser $ info (parseArgs <**> helper) fullDesc
+  validateArgs args
 
 main :: IO ()
 main = do
-  args <- execParser $ info (parseArgs <**> helper) fullDesc
-  case validateArgs args of
-    Left validArgs -> do
-      putStrLn $ if argDebug validArgs then "debug" else "quiet"
-      fileContents <- readFile $ argFilename validArgs
-      putColorful Green fileContents
-    Right errorMsg -> do
-      putStrLn errorMsg
-      exitWith (ExitFailure 1)
+  validArgs <- parseAndValidateArgs
+  putStrLn $ if argDebug validArgs then "debug" else "quiet"
+  fileContents <- readFile $ argFilename validArgs
+  putColorful Green fileContents
