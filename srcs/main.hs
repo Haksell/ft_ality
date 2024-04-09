@@ -3,6 +3,7 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Data.Char (isAlpha, isAscii, isSpace, toUpper)
+import System.Exit (ExitCode (ExitFailure), exitWith)
 import System.IO
   ( BufferMode (NoBuffering),
     hReady,
@@ -13,21 +14,35 @@ import System.IO
 
 type ParsedContent = (String, String) -- WIP
 
+parseActions :: [String] -> String
+parseActions _ = "actions"
+
+parseCombos :: [String] -> String
+parseCombos _ = "combos"
+
 trim :: String -> String
 trim = f . f
   where
     f = reverse . dropWhile isSpace
 
-parseContent :: String -> ParsedContent
-parseContent _ = ("ok", "ok")
+-- TODO: fix on grammars/invalid/empty.gmr and grammars/invalid/newlines.gmr
+splitSections :: [String] -> [[String]]
+splitSections = foldr f [[]]
+  where
+    f "" ([] : acc) = [] : acc
+    f "" acc = [] : acc
+    f line (x : xs) = (line : x) : xs
+    f _ [] = []
 
 parseFile :: FilePath -> IO ParsedContent
-parseFile filePath = do
-  content <- trim <$> readFile filePath
-  let (actionsSection, combosSection) = break (== "") $ lines content
-  print actionsSection
-  print combosSection
-  return $ parseContent content
+parseFile filename = do
+  content <- trim <$> readFile filename
+  let sections = splitSections $ map trim $ lines content
+  case sections of
+    [actionsSection, combosSection] -> return (parseActions actionsSection, parseCombos combosSection)
+    _ -> do
+      putStrLn $ "Error: wrong number of sections: " ++ show (length sections)
+      exitWith (ExitFailure 1)
 
 isAsciiLetter :: Char -> Bool
 isAsciiLetter c = isAscii c && isAlpha c
@@ -52,10 +67,10 @@ getAction = do
     _ -> getAction
 
 execute :: String -> String -> IO ()
-execute _ _ = do
+execute keymap combos = do
   action <- getAction
   putColorful Green action
-  execute "" ""
+  execute keymap combos
 
 main :: IO ()
 main = do
