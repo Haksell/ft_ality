@@ -3,11 +3,15 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 
-parseFile :: FilePath -> IO (String, String)
+type ParsedContent = (String, String)
+
+parseContent :: String -> ParsedContent
+parseContent _ = ("ok", "ok")
+
+parseFile :: FilePath -> IO ParsedContent
 parseFile filePath = do
   content <- readFile filePath
-  putColorful Green content
-  return ("keymap", "combos")
+  return $ parseContent content
 
 main :: IO ()
 main = do
