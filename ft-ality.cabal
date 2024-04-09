@@ -14,6 +14,9 @@ executable ft_ality
   other-modules:
     Args
     Colors
+    Action
+    Combo
+    Utils
 
   hs-source-dirs:   srcs
   default-language: Haskell2010

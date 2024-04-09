@@ -1,45 +1,41 @@
 {-# LANGUAGE OverloadedStrings #-}
 
+import Action (Action (..), parseActions)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
+import Combo (Combo (..), parseCombos)
 import Data.Char (isAlpha, isAscii, isSpace, toUpper)
 import System.Exit (ExitCode (ExitFailure), exitWith)
-import System.IO
-  ( BufferMode (NoBuffering),
-    hReady,
-    hSetBuffering,
-    hSetEcho,
-    stdin,
-  )
+import System.IO (
+  BufferMode (NoBuffering),
+  hReady,
+  hSetBuffering,
+  hSetEcho,
+  stdin,
+ )
+import Utils (trim)
 
-type ParsedContent = (String, String) -- WIP
-
-parseActions :: [String] -> String
-parseActions _ = "actions"
-
-parseCombos :: [String] -> String
-parseCombos _ = "combos"
-
-trim :: String -> String
-trim = f . f
-  where
-    f = reverse . dropWhile isSpace
+type ParsedContent = ([Action], [Combo]) -- WIP
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
-  where
-    f "" [] = []
-    f line [] = [[line]]
-    f "" ([] : acc) = [] : acc
-    f "" acc = [] : acc
-    f line (x : xs) = (line : x) : xs
+ where
+  f "" [] = []
+  f line [] = [[line]]
+  f "" ([] : acc) = [] : acc
+  f "" acc = [] : acc
+  f line (x : xs) = (line : x) : xs
 
 parseFile :: FilePath -> IO ParsedContent
 parseFile filename = do
   content <- trim <$> readFile filename
   let sections = splitSections $ map trim $ lines content
+  -- putStrLn $ "sections: " ++ show sections
   case sections of
-    [actionsSection, combosSection] -> return (parseActions actionsSection, parseCombos combosSection)
+    [actionsSection, combosSection] -> do
+      actions <- parseActions actionsSection
+      combos <- parseCombos combosSection
+      return (actions, combos)
     _ -> do
       putStrLn $ "Error: wrong number of sections: " ++ show (length sections)
       exitWith (ExitFailure 1)
@@ -49,11 +45,11 @@ isAsciiLetter c = isAscii c && isAlpha c
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
-  where
-    getKeyPress' chars = do
-      char <- getChar
-      more <- hReady stdin
-      (if more then getKeyPress' else return) (char : chars)
+ where
+  getKeyPress' chars = do
+    char <- getChar
+    more <- hReady stdin
+    (if more then getKeyPress' else return) (char : chars)
 
 getAction :: IO String
 getAction = do
@@ -66,7 +62,7 @@ getAction = do
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getAction
 
-execute :: String -> String -> IO ()
+execute :: [Action] -> [Combo] -> IO ()
 execute keymap combos = do
   action <- getAction
   putColorful Green action
