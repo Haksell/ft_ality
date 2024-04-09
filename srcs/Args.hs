@@ -20,6 +20,9 @@ import Options.Applicative
   )
 import System.Exit (ExitCode (ExitFailure), exitWith)
 
+grammarExtension :: String
+grammarExtension = ".gmr"
+
 data Args = Args
   { argFilename :: String,
     argDebug :: Bool
@@ -28,15 +31,15 @@ data Args = Args
 parseArgs :: Parser Args
 parseArgs =
   Args
-    <$> argument str (metavar "grammar.gmr" <> help "Description of the keymap and combos")
+    <$> argument str (metavar ("grammar" ++ grammarExtension) <> help "Description of the keymap and combos")
     <*> switch (long "debug" <> short 'd' <> help "Debug mode")
 
 validateArgs :: Args -> IO Args
 validateArgs args =
-  if ".gmr" `isSuffixOf` argFilename args
+  if grammarExtension `isSuffixOf` argFilename args
     then return args
     else do
-      putStrLn "Error: the file path must end with '.gmr'."
+      putStrLn $ "Error: the file path must end with '" ++ grammarExtension ++ "'."
       exitWith (ExitFailure 1)
 
 parseAndValidateArgs :: IO Args
