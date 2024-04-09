@@ -1,7 +1,6 @@
 module Action (parseActions) where
 
 import qualified Data.Map as Map
-
 import Utils (trim)
 
 parseActions :: [String] -> IO (Map.Map String String)

@@ -4,8 +4,8 @@ import Action (parseActions)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
-import qualified Data.Map as Map
 import Data.Char (isAlpha, isAscii, toUpper)
+import qualified Data.Map as Map
 import System.Exit (ExitCode (ExitFailure), exitWith)
 import System.IO
   ( BufferMode (NoBuffering),
