@@ -29,14 +29,20 @@ parseArgs =
     <$> argument str (metavar "grammar.gmr" <> help "Description of the keymap and combos")
     <*> switch (long "debug" <> short 'd' <> help "Debug mode")
 
+validateArgs :: Args -> Either String Args
+validateArgs args =
+  if ".gmr" `isSuffixOf` argFilename args
+    then Right args
+    else Left "Error: the file path must end with '.gmr'."
+
 main :: IO ()
 main = do
   args <- execParser $ info (parseArgs <**> helper) fullDesc
-  let filename = argFilename args
-  let debug = argDebug args
-  putStrLn $ if debug then "debug" else "quiet"
-  if ".gmr" `isSuffixOf` filename
-    then do
+  case validateArgs args of
+    Right validArgs -> do
+      let filename = argFilename validArgs
+      let debug = argDebug validArgs
+      putStrLn $ if debug then "debug" else "quiet"
       fileContents <- readFile filename
       putColorful Green fileContents
-    else putStrLn "Error: the file path must end with '.gmr'."
+    Left errorMsg -> putStrLn errorMsg
