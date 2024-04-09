@@ -4,27 +4,27 @@ import Action (Action (..), parseActions)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
-import Data.Char (isAlpha, isAscii, isSpace, toUpper)
+import Data.Char (isAlpha, isAscii, toUpper)
 import System.Exit (ExitCode (ExitFailure), exitWith)
-import System.IO (
-  BufferMode (NoBuffering),
-  hReady,
-  hSetBuffering,
-  hSetEcho,
-  stdin,
- )
+import System.IO
+  ( BufferMode (NoBuffering),
+    hReady,
+    hSetBuffering,
+    hSetEcho,
+    stdin,
+  )
 import Utils (trim)
 
 type ParsedContent = ([Action], [Combo]) -- WIP
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
- where
-  f "" [] = []
-  f line [] = [[line]]
-  f "" ([] : acc) = [] : acc
-  f "" acc = [] : acc
-  f line (x : xs) = (line : x) : xs
+  where
+    f "" [] = []
+    f line [] = [[line]]
+    f "" ([] : acc) = [] : acc
+    f "" acc = [] : acc
+    f line (x : xs) = (line : x) : xs
 
 parseFile :: FilePath -> IO ParsedContent
 parseFile filename = do
@@ -45,11 +45,11 @@ isAsciiLetter c = isAscii c && isAlpha c
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
- where
-  getKeyPress' chars = do
-    char <- getChar
-    more <- hReady stdin
-    (if more then getKeyPress' else return) (char : chars)
+  where
+    getKeyPress' chars = do
+      char <- getChar
+      more <- hReady stdin
+      (if more then getKeyPress' else return) (char : chars)
 
 getAction :: IO String
 getAction = do
