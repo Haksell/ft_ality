@@ -2,10 +2,10 @@
 
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Control.Monad (when)
-import Data.Char (isDigit, isLower, isUpper, toUpper)
+import Data.Char (isAlpha, isAscii, toUpper)
 import System.IO
   ( BufferMode (NoBuffering),
+    hReady,
     hSetBuffering,
     hSetEcho,
     stdin,
@@ -21,29 +21,34 @@ parseFile filePath = do
   content <- readFile filePath
   return $ parseContent content
 
-displayColored :: Char -> IO ()
-displayColored char
-  | isDigit char = putColorful Yellow [char]
-  | isUpper char = putColorful Red [char]
-  | isLower char = putColorful Red [toUpper char]
-  | otherwise = return ()
+isAsciiLetter :: Char -> Bool
+isAsciiLetter c = isAscii c && isAlpha c
 
-loop :: IO ()
-loop = do
-  char <- getChar
-  case char of
-    '\ESC' -> do
-      next <- getChar
-      when (next == '[') $ do
-        direction <- getChar
-        case direction of
-          'A' -> putColorful Green "[Up]"
-          'B' -> putColorful Green "[Down]"
-          'C' -> putColorful Green "[Right]"
-          'D' -> putColorful Green "[Left]"
-          _ -> return ()
-    _ -> displayColored char
-  loop
+getKeyPress :: IO [Char]
+getKeyPress = reverse <$> getKeyPress' ""
+  where
+    getKeyPress' chars = do
+      char <- getChar
+      more <- hReady stdin
+      (if more then getKeyPress' else return) (char : chars)
+
+getAction :: IO String
+getAction = do
+  chars <- getKeyPress
+  case chars of
+    "\ESC[A" -> return "[UP]"
+    "\ESC[B" -> return "[DOWN]"
+    "\ESC[C" -> return "[RIGHT]"
+    "\ESC[D" -> return "[LEFT]"
+    [c] | isAsciiLetter c -> return [toUpper c]
+    _ -> getAction
+
+-- TODO: accept keymap and combos
+execute :: IO ()
+execute = do
+  action <- getAction
+  putColorful Green action
+  execute
 
 main :: IO ()
 main = do
@@ -54,4 +59,4 @@ main = do
   putStrLn $ if argDebug args then "debug" else "quiet"
   putStrLn keymap
   putStrLn combos
-  loop
+  execute
