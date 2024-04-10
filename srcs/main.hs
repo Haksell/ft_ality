@@ -2,8 +2,8 @@
 
 import Action (Keymap, parseKeymap)
 import Args (Args (..), parseAndValidateArgs)
-import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
+import Data.List (intercalate)
 import Keyboard (getAction)
 import System.IO (
   BufferMode (NoBuffering),
@@ -35,11 +35,16 @@ parseFile filename = do
       return (keymap, combos)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
 
-execute :: Keymap -> [Combo] -> IO ()
-execute keymap combos = do
+enqueue :: Int -> a -> [a] -> [a]
+enqueue maxSize x xs = take maxSize (x : xs)
+
+execute :: Keymap -> [Combo] -> [String] -> Int -> IO ()
+execute keymap combos actions maxSize = do
   action <- getAction keymap
-  putColorful Green action
-  execute keymap combos
+  let newActions = enqueue maxSize action actions
+  putStrLn $ intercalate ", " newActions
+  putStrLn ""
+  execute keymap combos newActions maxSize
 
 main :: IO ()
 main = do
@@ -49,4 +54,4 @@ main = do
   (keymap, combos) <- parseFile (argFilename args)
   print keymap
   print combos
-  execute keymap combos
+  execute keymap combos [] (maximum $ map comboLen combos)
