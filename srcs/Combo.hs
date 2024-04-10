@@ -1,4 +1,4 @@
-module Combo (Combo (..), parseCombos, advanceCombo, printCombos, printSuccessfulCombo) where
+module Combo (Combo (..), parseCombos, advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo) where
 
 import Colors (Color (..), colored, putColorful)
 import Data.Function (on)
@@ -88,3 +88,14 @@ printCombos combos = do
 
 printSuccessfulCombo :: Combo -> IO ()
 printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
+
+printUnsuccessfulCombo :: Combo -> IO ()
+printUnsuccessfulCombo combo =
+  putStrLn $
+    comboFighter combo
+      ++ ": "
+      ++ comboName combo
+      ++ ": "
+      ++ show (comboState combo)
+      ++ "/"
+      ++ show (comboLen combo)

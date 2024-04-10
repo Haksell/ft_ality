@@ -17,6 +17,7 @@ executable ft_ality
     Combo
     Keyboard
     Keymap
+    Parsing
     Utils
 
   hs-source-dirs:   srcs
