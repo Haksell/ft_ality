@@ -18,3 +18,7 @@
 ### Links
 
 -   [Mortal Kombat 9 Combos](https://www.eventhubs.com/guides/2012/nov/30/mortal-kombat-9-moves-characters-combos-and-strategy-guides/)
+-   https://stackoverflow.com/questions/5612201/haskell-library-for-2d-drawing
+-   https://www.stackbuilders.com/blog/gui-application/
+-   https://bradrn.com/posts/hs-gui-libs.html
+-   https://www.reddit.com/r/haskell/comments/eai2r1/recommended_gui_library/
