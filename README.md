@@ -2,9 +2,10 @@
 
 ## TODO
 
+-   [ ] Handle gamepad
 -   [ ] Check parsing
 -   [ ] Simple tester (even just `make valid` and `make invalid`)
--   [ ] Handle gamepad
+-   [ ] `--mode=normal|debug|gui` with normal as default
 -   [ ] GUI
 
 ## Code
