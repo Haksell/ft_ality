@@ -1,8 +1,9 @@
 module Combo (Combo (..), parseCombos) where
 
-import Data.List (nub)
+import Data.List (find, nub)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
+import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Utils (panic)
 
@@ -16,12 +17,18 @@ data Combo = Combo
 
 type ComboCache = Set.Set (String, String)
 
+findPositionDFA :: Int -> [String] -> String -> Int
+findPositionDFA i actions action = do
+  let bestFind = find (\j -> (take (j - 1) (drop (i - j + 1) actions) ++ [action]) == take j actions) [i + 1, i .. 0]
+  fromMaybe 0 bestFind
+
+buildState :: (Int, [String], [String]) -> Map.Map String Int
+buildState (i, actions, uniqueActions) = Map.fromList (map (\a -> (a, findPositionDFA i actions a)) uniqueActions)
+
 buildDFA :: [String] -> [Map.Map String Int]
 buildDFA actions = do
   let uniqueActions = nub actions
-  map buildState [0 .. length uniqueActions - 1]
- where
-  buildState i = Map.empty
+  map buildState $ zip3 [0 .. length uniqueActions - 1] (repeat actions) (repeat uniqueActions)
 
 -- TODO: maybe handle action not in keymap
 newCombo :: [String] -> String -> String -> Combo
