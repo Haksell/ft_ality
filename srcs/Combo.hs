@@ -1,12 +1,13 @@
 module Combo (Combo (..), parseCombos, advanceCombo, printCombos, printSuccessfulCombo) where
 
 import Colors (Color (..), colored, putColorful)
-import Data.List (find, intercalate, nub)
+import Data.Function (on)
+import Data.List (find, intercalate, nub, sortBy)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
-import Utils (panic, uncurry3)
+import Utils (panic, safeIndex, uncurry3)
 
 type DFA = [Map.Map String Int]
 
@@ -29,14 +30,6 @@ findPositionDFA i actions action = do
 
 buildState :: Int -> [String] -> [String] -> Map.Map String Int
 buildState i actions uniqueActions = Map.fromList (map (\a -> (a, findPositionDFA i actions a)) uniqueActions)
-
--- TODO: fix this (DSDDSD)
--- [BP], [BK], [BP], [BP], [BK]
--- ft_ality: Prelude.!!: index too large
--- CallStack (from HasCallStack):
---   error, called at libraries/base/GHC/List.hs:1368:14 in base:GHC.List
---   tooLarge, called at libraries/base/GHC/List.hs:1378:50 in base:GHC.List
---   !!, called at srcs/Combo.hs:72:32 in main:Combo
 
 buildDFA :: [String] -> [Map.Map String Int]
 buildDFA actions = do
@@ -80,7 +73,7 @@ parseCombos comboLines = parseCombos' comboLines [] Set.empty
 
 advanceCombo :: Combo -> String -> (Bool, Combo)
 advanceCombo combo action = do
-  let mapping = comboDFA combo !! comboState combo
+  let mapping = safeIndex (comboState combo) (comboDFA combo) Map.empty
   let newState = fromMaybe 0 (Map.lookup action mapping)
   let isComplete = newState == comboLen combo
   (isComplete, combo{comboState = if isComplete then 0 else newState})
@@ -91,7 +84,7 @@ printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo 
 printCombos :: [Combo] -> IO ()
 printCombos combos = do
   putColorful Green "=== COMBOS ==="
-  mapM_ printInfoCombo combos
+  mapM_ printInfoCombo (sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos)
 
 printSuccessfulCombo :: Combo -> IO ()
 printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"

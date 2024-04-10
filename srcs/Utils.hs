@@ -13,6 +13,13 @@ panic s = do
   putStrLn s
   exitWith (ExitFailure 1)
 
+safeIndex :: Int -> [a] -> a -> a
+safeIndex _ [] def = def
+safeIndex n (x : xs) def
+  | n == 0 = x
+  | n > 0 = safeIndex (n - 1) xs def
+  | otherwise = def
+
 trim :: String -> String
 trim = f . f
  where
