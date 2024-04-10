@@ -2,8 +2,11 @@
 
 module Utils where
 
-import Data.Char (isSpace)
+import Data.Char (isAlpha, isAscii, isSpace)
 import System.Exit (ExitCode (ExitFailure), exitWith)
+
+isAsciiLetter :: Char -> Bool
+isAsciiLetter c = isAscii c && isAlpha c
 
 panic :: forall a. String -> IO a
 panic s = do

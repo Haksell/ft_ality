@@ -4,7 +4,7 @@ import Action (parseActions)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
-import Data.Char (isAlpha, isAscii, toUpper)
+import Data.Char (toUpper)
 import qualified Data.Map as Map
 import System.IO (
   BufferMode (NoBuffering),
@@ -13,7 +13,7 @@ import System.IO (
   hSetEcho,
   stdin,
  )
-import Utils (panic, trim)
+import Utils (isAsciiLetter, panic, trim)
 
 type ParsedContent = (Map.Map String String, [Combo]) -- WIP
 
@@ -39,9 +39,6 @@ parseFile filename = do
       return (actions, combos)
     _ -> do
       panic $ "Error: wrong number of sections: " ++ show (length sections)
-
-isAsciiLetter :: Char -> Bool
-isAsciiLetter c = isAscii c && isAlpha c
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
