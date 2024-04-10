@@ -1,19 +1,26 @@
-module Action (parseActions) where
+module Action (Keymap, parseKeymap) where
 
-import Control.Monad (when)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Utils (panic)
 
-parseActions :: [String] -> IO (Map.Map String String)
-parseActions actionsSection = do
-  putStrLn "action section"
-  actions <- mapM parseAction actionsSection
-  let mappedActions = Map.fromList actions
-  -- TODO: print the first duplicate, like in Python version
-  when (length actions /= length mappedActions) $ panic "Duplicate action keys have been found in the grammar file."
-  mapM_ print actions
-  return mappedActions
+type Keymap = Map.Map String String
+
+parseKeymap :: [String] -> IO Keymap
+parseKeymap keymapSection = do
+  mappings <- mapM parseAction keymapSection
+  case buildKeymap mappings of
+    Left keymap -> return keymap
+    Right dup -> panic $ "Duplicate key found: " ++ dup
+
+buildKeymap :: [(String, String)] -> Either Keymap String
+buildKeymap = go Map.empty
+ where
+  go keymap [] = Left keymap
+  go keymap ((k, a) : xs) =
+    if Map.member k keymap
+      then Right k
+      else go (Map.insert k a keymap) xs
 
 parseAction :: String -> IO (String, String)
 parseAction actionLine = do

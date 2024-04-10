@@ -1,6 +1,6 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Action (parseActions)
+import Action (Keymap, parseKeymap)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
@@ -15,7 +15,7 @@ import System.IO (
  )
 import Utils (isAsciiLetter, panic, trim)
 
-type ParsedContent = (Map.Map String String, [Combo]) -- WIP
+type ParsedContent = (Keymap, [Combo])
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
@@ -30,13 +30,11 @@ parseFile :: FilePath -> IO ParsedContent
 parseFile filename = do
   content <- trim <$> readFile filename
   let sections = splitSections $ map trim $ lines content
-  -- putStrLn $ "sections: " ++ show sections
   case sections of
-    [actionsSection, combosSection] -> do
-      actions <- parseActions actionsSection
+    [keymapSection, combosSection] -> do
+      keymap <- parseKeymap keymapSection
       combos <- parseCombos combosSection
-      print combos
-      return (actions, combos)
+      return (keymap, combos)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
 
 getKeyPress :: IO [Char]
@@ -70,4 +68,6 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
+  print keymap
+  print combos
   execute keymap combos
