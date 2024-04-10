@@ -36,29 +36,33 @@ advanceDebug combo action = do
   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
   return newCombo
 
-executeKeyboard :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-executeKeyboard debug keymap combos actions maxSize = do
-  action <- getAction keymap
-  let newActions = enqueue maxSize action actions
-  putStrLn $ intercalate ", " (reverse newActions)
+handleOneAction :: Bool -> String -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
+handleOneAction debug action combos queue maxSize = do
+  let newQueue = enqueue maxSize action queue
+  putStrLn $ intercalate ", " (reverse newQueue)
   let advanceFunc = if debug then advanceDebug else advanceQuiet
   newCombos <- mapM (`advanceFunc` action) combos
   putStrLn ""
-  executeKeyboard debug keymap newCombos newActions maxSize
+  return (newQueue, newCombos)
+
+handleMultipleActions :: Bool -> [String] -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
+handleMultipleActions _ [] combos queue _ = return (queue, combos)
+handleMultipleActions debug (action : newActions) combos queue maxSize = do
+  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
+  handleMultipleActions debug newActions newCombos newQueue maxSize
+
+executeKeyboard :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
+executeKeyboard debug keymap combos queue maxSize = do
+  action <- getAction keymap
+  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
+  executeKeyboard debug keymap newCombos newQueue maxSize
 
 executeGamePad :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-executeGamePad debug keymap combos actions maxSize = do
-  pressedButtons <- getActionGamepad keymap
-  when (null pressedButtons) $ executeGamePad debug keymap combos actions maxSize
-  let action = head pressedButtons -- TODO: handle multiple buttons
-  -- putStrLn $ "Button pressed: " ++ action
-  -- init
-  let newActions = enqueue maxSize action actions
-  putStrLn $ intercalate ", " (reverse newActions)
-  let advanceFunc = if debug then advanceDebug else advanceQuiet
-  newCombos <- mapM (`advanceFunc` action) combos
-  putStrLn ""
-  executeGamePad debug keymap newCombos newActions maxSize
+executeGamePad debug keymap combos queue maxSize = do
+  actions <- getActionGamepad keymap
+  when (null actions) $ executeGamePad debug keymap combos queue maxSize
+  (newQueue, newCombos) <- handleMultipleActions debug actions combos queue maxSize
+  executeGamePad debug keymap newCombos newQueue maxSize
 
 main :: IO ()
 main = do
