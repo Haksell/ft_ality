@@ -1,6 +1,9 @@
-module Action (Keymap, parseKeymap) where
+module Keymap (Keymap, parseKeymap, printKeymap) where
 
+import Colors (Color (..), putColorful)
 import Data.Char (toUpper)
+import Data.Function (on)
+import Data.List (sortBy)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Utils (isAsciiLetter, panic)
@@ -9,7 +12,7 @@ type Keymap = Map.Map String String
 
 parseKeymap :: [String] -> IO Keymap
 parseKeymap keymapSection = do
-  mappings <- mapM parseAction keymapSection
+  mappings <- mapM parseMapping keymapSection
   keymapOrDuplicate <- buildKeymap mappings
   case keymapOrDuplicate of
     Left keymap -> return keymap
@@ -37,9 +40,16 @@ checkKey k =
     else
       panic $ "Invalid key: " ++ k
 
-parseAction :: String -> IO (String, String)
-parseAction actionLine = do
-  let parts = splitOn "/" actionLine
+parseMapping :: String -> IO (String, String)
+parseMapping keymapLine = do
+  let parts = splitOn "/" keymapLine
   case parts of
     [key, action] -> return (key, action)
     _ -> panic "Action line should be in the following format: key/action"
+
+printKeymap :: Keymap -> IO ()
+printKeymap keymap = do
+  putColorful Green "=== KEYMAP ==="
+  mapM_
+    (\(k, v) -> putStrLn $ k ++ " -> " ++ v)
+    (sortBy (compare `on` length . fst) (Map.toList keymap))

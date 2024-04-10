@@ -12,11 +12,11 @@ executable ft_ality
   import:           warnings
   main-is:          main.hs
   other-modules:
-    Action
     Args
     Colors
     Combo
     Keyboard
+    Keymap
     Utils
 
   hs-source-dirs:   srcs

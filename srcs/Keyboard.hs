@@ -1,8 +1,8 @@
 module Keyboard (getAction) where
 
-import Action (Keymap)
 import Data.Char (toUpper)
 import qualified Data.Map as Map
+import Keymap (Keymap)
 import System.IO (hReady, stdin)
 import Utils (isAsciiLetter)
 

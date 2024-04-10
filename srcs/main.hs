@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-import Action (Keymap, parseKeymap)
 import Args (Args (..), parseAndValidateArgs)
 import Combo (Combo (..), advanceCombo, parseCombos)
 import Control.Monad (when)
 import Data.List (intercalate)
 import Keyboard (getAction)
+import Keymap (Keymap, parseKeymap, printKeymap)
 import System.IO (
   BufferMode (NoBuffering),
   hSetBuffering,
@@ -60,6 +60,6 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  print keymap
+  printKeymap keymap
   print combos
   execute keymap combos [] (maximum $ map comboLen combos)
