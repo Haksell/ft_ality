@@ -1,12 +1,12 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
 import Data.List (intercalate)
-import qualified Data.Map as Map
-import Keyboard (getKey)
+import GameControllerManager (
+  getActionGamepad,
+  initGameContoller,
+ )
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import System.IO (
@@ -16,6 +16,7 @@ import System.IO (
   stdin,
  )
 import Utils (enqueue)
+import Keyboard (getActionKeyboard)
 
 printInfo :: Keymap -> [Combo] -> IO ()
 printInfo keymap combos = do
@@ -35,23 +36,33 @@ advanceDebug combo action = do
   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
   return newCombo
 
--- TODO: boolean to check if gamepad
-getAction :: Keymap -> IO String
-getAction keymap = do
-  key <- getKey
-  case Map.lookup key keymap of
-    Just action -> return action
-    Nothing -> getAction keymap
-
-execute :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-execute debug keymap combos actions maxSize = do
-  action <- getAction keymap
-  let newActions = enqueue maxSize action actions
-  putStrLn $ intercalate ", " (reverse newActions)
+handleOneAction :: Bool -> String -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
+handleOneAction debug action combos queue maxSize = do
+  let newQueue = enqueue maxSize action queue
+  putStrLn $ intercalate ", " (reverse newQueue)
   let advanceFunc = if debug then advanceDebug else advanceQuiet
   newCombos <- mapM (`advanceFunc` action) combos
   putStrLn ""
-  execute debug keymap newCombos newActions maxSize
+  return (newQueue, newCombos)
+
+handleMultipleActions :: Bool -> [String] -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
+handleMultipleActions _ [] combos queue _ = return (queue, combos)
+handleMultipleActions debug (action : newActions) combos queue maxSize = do
+  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
+  handleMultipleActions debug newActions newCombos newQueue maxSize
+
+executeKeyboard :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
+executeKeyboard debug keymap combos queue maxSize = do
+  action <- getActionKeyboard keymap
+  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
+  executeKeyboard debug keymap newCombos newQueue maxSize
+
+executeGamePad :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
+executeGamePad debug keymap combos queue maxSize = do
+  actions <- getActionGamepad keymap
+  when (null actions) $ executeGamePad debug keymap combos queue maxSize
+  (newQueue, newCombos) <- handleMultipleActions debug actions combos queue maxSize
+  executeGamePad debug keymap newCombos newQueue maxSize
 
 main :: IO ()
 main = do
@@ -59,5 +70,7 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  printInfo keymap combos
-  execute (argDebug args) keymap combos [] (maximum $ map comboLen combos)
+  printInfo keymap combos -- Don't print unused keymap
+  when (argGamepad args) initGameContoller
+  let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
+  executeFunc (argDebug args) keymap combos [] (maximum $ map comboLen combos)
