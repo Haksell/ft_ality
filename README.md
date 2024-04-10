@@ -2,7 +2,6 @@
 
 ## TODO
 
--   [ ] Handle gamepad
 -   [ ] Check parsing
 -   [ ] Simple tester (even just `make valid` and `make invalid`)
 -   [ ] `--mode=normal|debug|gui` with normal as default
