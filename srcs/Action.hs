@@ -1,26 +1,41 @@
 module Action (Keymap, parseKeymap) where
 
+import Data.Char (toUpper)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
-import Utils (panic)
+import Utils (isAsciiLetter, panic)
 
 type Keymap = Map.Map String String
 
 parseKeymap :: [String] -> IO Keymap
 parseKeymap keymapSection = do
   mappings <- mapM parseAction keymapSection
-  case buildKeymap mappings of
+  keymapOrDuplicate <- buildKeymap mappings
+  case keymapOrDuplicate of
     Left keymap -> return keymap
-    Right dup -> panic $ "Duplicate key found: " ++ dup
+    Right duplicate -> panic $ "Duplicate key found: " ++ duplicate
 
-buildKeymap :: [(String, String)] -> Either Keymap String
+buildKeymap :: [(String, String)] -> IO (Either Keymap String)
 buildKeymap = go Map.empty
  where
-  go keymap [] = Left keymap
+  go keymap [] = return $ Left keymap
   go keymap ((k, a) : xs) =
     if Map.member k keymap
-      then Right k
-      else go (Map.insert k a keymap) xs
+      then return $ Right k
+      else do
+        checkedKey <- checkKey $ map toUpper k
+        go (Map.insert checkedKey a keymap) xs
+
+validKeys :: [String]
+validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
+
+checkKey :: String -> IO String
+checkKey k =
+  if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys
+    then
+      return k
+    else
+      panic $ "Invalid key: " ++ k
 
 parseAction :: String -> IO (String, String)
 parseAction actionLine = do
