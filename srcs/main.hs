@@ -4,16 +4,14 @@ import Action (Keymap, parseKeymap)
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), parseCombos)
-import Data.Char (toUpper)
-import qualified Data.Map as Map
+import Keyboard (getAction)
 import System.IO (
   BufferMode (NoBuffering),
-  hReady,
   hSetBuffering,
   hSetEcho,
   stdin,
  )
-import Utils (isAsciiLetter, panic, trim)
+import Utils (panic, trim)
 
 type ParsedContent = (Keymap, [Combo])
 
@@ -37,28 +35,9 @@ parseFile filename = do
       return (keymap, combos)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
 
-getKeyPress :: IO [Char]
-getKeyPress = reverse <$> getKeyPress' ""
- where
-  getKeyPress' chars = do
-    char <- getChar
-    more <- hReady stdin
-    (if more then getKeyPress' else return) (char : chars)
-
-getAction :: IO String
-getAction = do
-  chars <- getKeyPress
-  case chars of
-    "\ESC[A" -> return "[UP]"
-    "\ESC[B" -> return "[DOWN]"
-    "\ESC[C" -> return "[RIGHT]"
-    "\ESC[D" -> return "[LEFT]"
-    [c] | isAsciiLetter c -> return [toUpper c]
-    _ -> getAction
-
-execute :: Map.Map String String -> [Combo] -> IO ()
+execute :: Keymap -> [Combo] -> IO ()
 execute keymap combos = do
-  action <- getAction
+  action <- getAction keymap
   putColorful Green action
   execute keymap combos
 

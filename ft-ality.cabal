@@ -16,6 +16,7 @@ executable ft_ality
     Args
     Colors
     Combo
+    Keyboard
     Utils
 
   hs-source-dirs:   srcs
