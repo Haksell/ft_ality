@@ -13,7 +13,7 @@ import System.IO (
   hSetEcho,
   stdin,
  )
-import Utils (panic, trim)
+import Utils (enqueue, panic, trim)
 
 type ParsedContent = (Keymap, [Combo])
 
@@ -37,9 +37,6 @@ parseFile filename = do
       return (keymap, combos)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
 
-enqueue :: Int -> a -> [a] -> [a]
-enqueue maxSize x xs = take maxSize (x : xs)
-
 advanceAndPrint :: Combo -> String -> IO Combo
 advanceAndPrint combo action = do
   let (isFinished, newCombo) = advanceCombo combo action
@@ -55,13 +52,17 @@ execute keymap combos actions maxSize = do
   putStrLn ""
   execute keymap newCombos newActions maxSize
 
+printInfo :: Keymap -> [Combo] -> IO ()
+printInfo keymap combos = do
+  printKeymap keymap
+  printCombos combos
+  putColorful Green (replicate 40 '=')
+
 main :: IO ()
 main = do
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  printKeymap keymap
-  printCombos combos
-  putColorful Green (replicate 40 '=')
+  printInfo keymap combos
   execute keymap combos [] (maximum $ map comboLen combos)

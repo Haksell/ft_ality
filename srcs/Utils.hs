@@ -5,6 +5,9 @@ module Utils where
 import Data.Char (isAlpha, isAscii, isSpace)
 import System.Exit (ExitCode (ExitFailure), exitWith)
 
+enqueue :: Int -> a -> [a] -> [a]
+enqueue maxSize x xs = take maxSize (x : xs)
+
 isAsciiLetter :: Char -> Bool
 isAsciiLetter c = isAscii c && isAlpha c
 
