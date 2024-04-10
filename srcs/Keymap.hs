@@ -19,15 +19,15 @@ parseKeymap keymapSection = do
     Right duplicate -> panic $ "Duplicate key found: " ++ duplicate
 
 buildKeymap :: [(String, String)] -> IO (Either Keymap String)
-buildKeymap = go Map.empty
+buildKeymap = f Map.empty
  where
-  go keymap [] = return $ Left keymap
-  go keymap ((k, a) : xs) =
+  f keymap [] = return $ Left keymap
+  f keymap ((k, a) : xs) =
     if Map.member k keymap
       then return $ Right k
       else do
         checkedKey <- checkKey $ map toUpper k
-        go (Map.insert checkedKey a keymap) xs
+        f (Map.insert checkedKey a keymap) xs
 
 validKeys :: [String]
 validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
