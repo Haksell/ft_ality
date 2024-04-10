@@ -17,8 +17,8 @@ parseActions actionsSection = do
 parseAction :: String -> IO (String, String)
 parseAction line = do
   let (k, a) = break (== '/') line
-      key = trim k
-      value = trim $ drop 1 a
+  let key = trim k
+  let value = trim $ drop 1 a
   if null key || null value
     then do
       panic "Empty action key or action value has been found in the grammar file."
