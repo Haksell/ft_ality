@@ -47,15 +47,13 @@ parseCombo comboLine comboCache = do
   case parts of
     [actions, name, fighter] ->
       if Set.member (name, fighter) comboCache
-        then do
-          panic $ "Duplicate combo: " ++ name ++ "(" ++ fighter ++ ")"
+        then panic $ "Duplicate combo: " ++ name ++ "(" ++ fighter ++ ")"
         else
           return
             ( newCombo (splitOn "," actions) name fighter
             , Set.insert (name, fighter) comboCache
             )
-    _ -> do
-      panic "Combo line should be in the following format: moves/name/fighter"
+    _ -> panic "Combo line should be in the following format: moves/name/fighter"
 
 parseCombos' :: [String] -> [Combo] -> ComboCache -> IO [Combo]
 parseCombos' [] prevCombos _ = return prevCombos

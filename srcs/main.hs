@@ -37,8 +37,7 @@ parseFile filename = do
       combos <- parseCombos combosSection
       print combos
       return (actions, combos)
-    _ -> do
-      panic $ "Error: wrong number of sections: " ++ show (length sections)
+    _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
