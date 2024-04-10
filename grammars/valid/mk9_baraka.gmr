@@ -10,6 +10,18 @@ Up/Up
 Right/Right
 Down/Down
 Left/Left
+ControllerButtonA/Block
+ControllerButtonB/Flip Stance
+ControllerButtonX/Tag
+ControllerButtonY/Throw
+ControllerButtonDpadRight/Right
+ControllerButtonDpadUp/Up
+ControllerButtonDpadLeft/Left
+ControllerButtonDpadDown/Down
+ControllerButtonRightShoulder/[BK]
+ControllerButtonLeftShoulder/[BP]
+ControllerButtonRightStick/[FK]
+ControllerButtonLeftStick/[FP]
 
 Down,[BP]/Uppercut/Baraka
 Left,[BK]/Blade Slash/Baraka
