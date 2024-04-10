@@ -1,16 +1,28 @@
-module GameControllerManager(initGameContoller, getActionGamepad) where
-import SDL
-import SDL.Input.GameController
-import qualified SDL.Internal.Types
-import qualified Data.Vector as V
-import Control.Monad (unless)
-import Utils (panic)
-import Keymap
+{-# OPTIONS_GHC -Wno-unused-do-bind #-}
+
+module GameControllerManager (initGameContoller, getActionGamepad) where
+
+import Data.Char (toUpper)
 import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
-import Data.Char (toUpper)
+import qualified Data.Vector as V
+import Keymap (Keymap)
+import SDL (
+  ControllerButtonEventData (controllerButtonEventButton, controllerButtonEventState),
+  Event (eventPayload),
+  EventPayload (ControllerButtonEvent),
+  InitFlag (InitGameController),
+  initialize,
+  pollEvents,
+ )
+import SDL.Input.GameController (
+  ControllerButtonState (ControllerButtonPressed),
+  availableControllers,
+  openController,
+ )
+import Utils (panic)
 
-initGameContoller :: IO SDL.Internal.Types.GameController
+initGameContoller :: IO ()
 initGameContoller = do
   SDL.initialize [SDL.InitGameController]
 
@@ -20,18 +32,13 @@ initGameContoller = do
       panic "No game controllers connected!"
     else do
       let firstController = V.head controllers
-      -- TODO DEGUG? putStrLn $ "Opening controller: " ++ show (gameControllerDeviceName firstController)
-
       openController firstController
-      -- TODO DEBUG? putStrLn "Game Controller opened!"
+      return ()
 
--- TODO: also use for Gamepad
 getActionGamepad :: Keymap -> IO [String]
 getActionGamepad keymap = do
   events <- SDL.pollEvents
   let buttonPresses = [e | SDL.ControllerButtonEvent e <- map SDL.eventPayload events, SDL.controllerButtonEventState e == ControllerButtonPressed]
-  -- unless (null buttonPresses) $ do putStrLn $ "Button pressed: " ++ show buttonPresses
-  -- mapM_ (liftIO . printButtonPressed) buttonPresses
   let actions = map (`getActionFromButton` keymap) buttonPresses
   return $ catMaybes actions
 

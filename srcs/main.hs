@@ -3,6 +3,10 @@ import Colors (Color (..), putColorful)
 import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
 import Data.List (intercalate)
+import GameControllerManager (
+  getActionGamepad,
+  initGameContoller,
+ )
 import Keyboard (getAction)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
@@ -13,8 +17,6 @@ import System.IO (
   stdin,
  )
 import Utils (enqueue)
-import GameControllerManager
-import qualified SDL.Internal.Types
 
 printInfo :: Keymap -> [Combo] -> IO ()
 printInfo keymap combos = do
@@ -34,15 +36,15 @@ advanceDebug combo action = do
   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
   return newCombo
 
-execute :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-execute debug keymap combos actions maxSize = do
+executeKeyboard :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
+executeKeyboard debug keymap combos actions maxSize = do
   action <- getAction keymap
   let newActions = enqueue maxSize action actions
   putStrLn $ intercalate ", " (reverse newActions)
   let advanceFunc = if debug then advanceDebug else advanceQuiet
   newCombos <- mapM (`advanceFunc` action) combos
   putStrLn ""
-  execute debug keymap newCombos newActions maxSize
+  executeKeyboard debug keymap newCombos newActions maxSize
 
 executeGamePad :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
 executeGamePad debug keymap combos actions maxSize = do
@@ -56,7 +58,7 @@ executeGamePad debug keymap combos actions maxSize = do
   let advanceFunc = if debug then advanceDebug else advanceQuiet
   newCombos <- mapM (`advanceFunc` action) combos
   putStrLn ""
-  executeGamePad debug keymap newCombos newActions maxSize 
+  executeGamePad debug keymap newCombos newActions maxSize
 
 main :: IO ()
 main = do
@@ -64,6 +66,7 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  printInfo keymap combos
-  controller <- initGameContoller
-  executeGamePad (argDebug args) keymap combos [] (maximum $ map comboLen combos)
+  printInfo keymap combos -- Don't print unused keymap
+  when (argGamepad args) initGameContoller
+  let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
+  executeFunc (argDebug args) keymap combos [] (maximum $ map comboLen combos)

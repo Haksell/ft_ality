@@ -1,4 +1,4 @@
-module Keymap (Keymap, parseKeymap, printKeymap) where
+module Keymap (Keymap, parseKeymap, printKeymap, validKeys, validButtons) where
 
 import Colors (Color (..), putColorful)
 import Data.Char (toUpper)
@@ -30,11 +30,14 @@ buildKeymap = f Map.empty
         f (Map.insert checkedKey a keymap) xs
 
 validKeys :: [String]
-validKeys = ["UP", "RIGHT", "DOWN", "LEFT", "CONTROLLERBUTTONA"]
+validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
+
+validButtons :: [String]
+validButtons = ["CONTROLLERBUTTONA"]
 
 checkKey :: String -> IO String
 checkKey k =
-  if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys
+  if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys || k `elem` validButtons
     then
       return k
     else

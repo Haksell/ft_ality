@@ -26,6 +26,7 @@ grammarExtension = ".gmr"
 data Args = Args
   { argFilename :: FilePath
   , argDebug :: Bool
+  , argGamepad :: Bool
   }
 
 parseArgs :: Parser Args
@@ -33,6 +34,7 @@ parseArgs =
   Args
     <$> argument str (metavar ("grammar" ++ grammarExtension) <> help "Description of the keymap and combos")
     <*> switch (long "debug" <> short 'd' <> help "Debug mode")
+    <*> switch (long "gamepad" <> short 'g' <> help "Enter combos using a gamepad")
 
 validateArgs :: Args -> IO Args
 validateArgs args =
