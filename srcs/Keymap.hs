@@ -30,7 +30,7 @@ buildKeymap = f Map.empty
         f (Map.insert checkedKey a keymap) xs
 
 validKeys :: [String]
-validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
+validKeys = ["UP", "RIGHT", "DOWN", "LEFT", "CONTROLLERBUTTONA"]
 
 checkKey :: String -> IO String
 checkKey k =

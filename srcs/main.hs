@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
@@ -15,6 +13,8 @@ import System.IO (
   stdin,
  )
 import Utils (enqueue)
+import GameControllerManager
+import qualified SDL.Internal.Types
 
 printInfo :: Keymap -> [Combo] -> IO ()
 printInfo keymap combos = do
@@ -44,6 +44,20 @@ execute debug keymap combos actions maxSize = do
   putStrLn ""
   execute debug keymap newCombos newActions maxSize
 
+executeGamePad :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
+executeGamePad debug keymap combos actions maxSize = do
+  pressedButtons <- getActionGamepad keymap
+  when (null pressedButtons) $ executeGamePad debug keymap combos actions maxSize
+  let action = head pressedButtons -- TODO: handle multiple buttons
+  -- putStrLn $ "Button pressed: " ++ action
+  -- init
+  let newActions = enqueue maxSize action actions
+  putStrLn $ intercalate ", " (reverse newActions)
+  let advanceFunc = if debug then advanceDebug else advanceQuiet
+  newCombos <- mapM (`advanceFunc` action) combos
+  putStrLn ""
+  executeGamePad debug keymap newCombos newActions maxSize 
+
 main :: IO ()
 main = do
   hSetEcho stdin False
@@ -51,4 +65,5 @@ main = do
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
   printInfo keymap combos
-  execute (argDebug args) keymap combos [] (maximum $ map comboLen combos)
+  controller <- initGameContoller
+  executeGamePad (argDebug args) keymap combos [] (maximum $ map comboLen combos)
