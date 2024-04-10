@@ -15,8 +15,6 @@ import System.IO (
  )
 import Utils (enqueue, panic, trim)
 
-type ParsedContent = (Keymap, [Combo])
-
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
  where
@@ -26,7 +24,7 @@ splitSections = foldr f []
   f "" acc = [] : acc
   f line (x : xs) = (line : x) : xs
 
-parseFile :: FilePath -> IO ParsedContent
+parseFile :: FilePath -> IO (Keymap, [Combo])
 parseFile filename = do
   content <- trim <$> readFile filename
   let sections = splitSections $ map trim $ lines content
