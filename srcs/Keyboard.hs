@@ -1,8 +1,10 @@
-module Keyboard (getKey) where
+module Keyboard (getActionKeyboard) where
 
 import Data.Char (toUpper)
 import System.IO (hReady, stdin)
 import Utils (isAsciiLetter)
+import Keymap (Keymap)
+import qualified Data.Map as Map
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
@@ -22,3 +24,10 @@ getKey = do
     "\ESC[D" -> return "LEFT"
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getKey
+
+getActionKeyboard :: Keymap -> IO String
+getActionKeyboard keymap = do
+  key <- getKey
+  case Map.lookup key keymap of
+    Just action -> return action
+    Nothing -> getActionKeyboard keymap
