@@ -1,7 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 import Args (Args (..), parseAndValidateArgs)
-import Combo (Combo (..), advanceCombo, parseCombos)
+import Colors (Color (..), putColorful)
+import Combo (Combo (..), advanceCombo, parseCombos, printCombos, printSuccessfulCombo)
 import Control.Monad (when)
 import Data.List (intercalate)
 import Keyboard (getAction)
@@ -42,14 +43,14 @@ enqueue maxSize x xs = take maxSize (x : xs)
 advanceAndPrint :: Combo -> String -> IO Combo
 advanceAndPrint combo action = do
   let (isFinished, newCombo) = advanceCombo combo action
-  when isFinished $ putStrLn (comboStr newCombo)
+  when isFinished $ printSuccessfulCombo newCombo
   return newCombo
 
 execute :: Keymap -> [Combo] -> [String] -> Int -> IO ()
 execute keymap combos actions maxSize = do
   action <- getAction keymap
   let newActions = enqueue maxSize action actions
-  putStrLn $ intercalate ", " newActions
+  putStrLn $ intercalate ", " (reverse newActions)
   newCombos <- mapM (`advanceAndPrint` action) combos
   putStrLn ""
   execute keymap newCombos newActions maxSize
@@ -61,5 +62,6 @@ main = do
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
   printKeymap keymap
-  print combos
+  printCombos combos
+  putColorful Green (replicate 40 '=')
   execute keymap combos [] (maximum $ map comboLen combos)
