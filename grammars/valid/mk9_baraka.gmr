@@ -49,7 +49,7 @@ Down,Right,[BP],Block/Blade Rush/Baraka
 Down,Left,[BP],Block/Sparked/Baraka
 Left,Left,[BK],Block/Chopchop Shop/Baraka
 Down,Left,[FK],Block/Spinner/Baraka
-Down,Right,One,Block/Slicer/Baraka
+Down,Right,[FP],Block/Slicer/Baraka
 Down,Right,Tag/Tag Attack/Baraka
 Down,Left,Tag/Tag Assist/Baraka
 Flip Stance,Block/Nail and Impale/Baraka

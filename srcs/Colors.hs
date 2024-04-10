@@ -1,5 +1,3 @@
--- TODO: use or delete
-
 module Colors (Color (..), colored, putColorful) where
 
 data Color = Red | Green | Yellow | Blue | Magenta | Cyan | White

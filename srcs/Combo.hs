@@ -7,7 +7,7 @@ import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
-import Utils (panic, safeIndex, uncurry3)
+import Utils (panic, uncurry3)
 
 type DFA = [Map.Map String Int]
 
@@ -34,7 +34,7 @@ buildState i actions uniqueActions = Map.fromList (map (\a -> (a, findPositionDF
 buildDFA :: [String] -> [Map.Map String Int]
 buildDFA actions = do
   let uniqueActions = nub actions
-  map (uncurry3 buildState) $ zip3 [0 .. length uniqueActions] (repeat actions) (repeat uniqueActions)
+  map (uncurry3 buildState) $ zip3 [0 .. length actions - 1] (repeat actions) (repeat uniqueActions)
 
 -- TODO: maybe handle action not in keymap
 newCombo :: [String] -> String -> String -> Combo
@@ -69,11 +69,13 @@ parseCombos' (comboLine : comboLines) prevCombos comboCache = do
   parseCombos' comboLines (combo : prevCombos) newComboCache
 
 parseCombos :: [String] -> IO [Combo]
-parseCombos comboLines = parseCombos' comboLines [] Set.empty
+parseCombos comboLines = do
+  combos <- parseCombos' comboLines [] Set.empty
+  return $ sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos
 
 advanceCombo :: Combo -> String -> (Bool, Combo)
 advanceCombo combo action = do
-  let mapping = safeIndex (comboState combo) (comboDFA combo) Map.empty
+  let mapping = comboDFA combo !! comboState combo
   let newState = fromMaybe 0 (Map.lookup action mapping)
   let isComplete = newState == comboLen combo
   (isComplete, combo{comboState = if isComplete then 0 else newState})
@@ -84,7 +86,7 @@ printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo 
 printCombos :: [Combo] -> IO ()
 printCombos combos = do
   putColorful Green "=== COMBOS ==="
-  mapM_ printInfoCombo (sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos)
+  mapM_ printInfoCombo combos
 
 printSuccessfulCombo :: Combo -> IO ()
 printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
