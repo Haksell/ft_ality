@@ -79,6 +79,5 @@ advanceCombo :: Combo -> String -> (Bool, Combo)
 advanceCombo combo action = do
   let mapping = comboDFA combo !! comboState combo
   let newState = fromMaybe 0 (Map.lookup action mapping)
-  if newState == comboLen combo
-    then (True, combo{comboState = 0})
-    else (False, combo{comboState = newState})
+  let isComplete = newState == comboLen combo
+  (isComplete, combo{comboState = if isComplete then 0 else newState})

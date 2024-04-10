@@ -1,11 +1,11 @@
 ### TODO
 
--   [ ] Parse .gmr file
--   [ ] Print keymap
+-   [ ] Print parsing
+-   [ ] Fix DFA bug
+-   [ ] Check parsing
 -   [ ] Simple tester (even just `make valid` and `make invalid`)
--   [ ] Some invalid files...
--   [ ] Create automaton
--   [ ] Read input character by character (done in main from february)
+-   [ ] Handle gamepad
+-   [ ] GUI
 
 ### Code
 
