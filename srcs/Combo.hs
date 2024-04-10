@@ -1,5 +1,6 @@
 module Combo (Combo (..), parseCombos, advanceCombo) where
 
+import Colors (Color (..), colored)
 import Data.List (find, nub)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
@@ -28,6 +29,14 @@ findPositionDFA i actions action = do
 buildState :: Int -> [String] -> [String] -> Map.Map String Int
 buildState i actions uniqueActions = Map.fromList (map (\a -> (a, findPositionDFA i actions a)) uniqueActions)
 
+-- TODO: fix this (DSDDSD)
+-- [BP], [BK], [BP], [BP], [BK]
+-- ft_ality: Prelude.!!: index too large
+-- CallStack (from HasCallStack):
+--   error, called at libraries/base/GHC/List.hs:1368:14 in base:GHC.List
+--   tooLarge, called at libraries/base/GHC/List.hs:1378:50 in base:GHC.List
+--   !!, called at srcs/Combo.hs:72:32 in main:Combo
+
 buildDFA :: [String] -> [Map.Map String Int]
 buildDFA actions = do
   let uniqueActions = nub actions
@@ -38,7 +47,7 @@ newCombo :: [String] -> String -> String -> Combo
 newCombo actions name fighter =
   Combo
     { Combo.comboLen = length actions
-    , Combo.comboStr = name ++ " (" ++ fighter ++ ") !!"
+    , Combo.comboStr = colored Red fighter ++ " uses " ++ colored Blue name ++ " !!"
     , Combo.comboState = 0
     , Combo.comboDFA = buildDFA actions
     }

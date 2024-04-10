@@ -1,6 +1,6 @@
 -- TODO: use or delete
 
-module Colors (Color (..), putColorful) where
+module Colors (Color (..), colored) where
 
 data Color = Red | Green | Yellow | Blue | Magenta | Cyan | White
 
@@ -13,11 +13,11 @@ colorCode Magenta = "\ESC[35m"
 colorCode Cyan = "\ESC[36m"
 colorCode White = "\ESC[37m"
 
+colored :: Color -> String -> String
+colored color text = ansiBold ++ colorCode color ++ text ++ ansiReset
+
 ansiBold :: String
 ansiBold = "\ESC[1m"
 
 ansiReset :: String
 ansiReset = "\ESC[0m"
-
-putColorful :: Color -> String -> IO ()
-putColorful color text = putStrLn $ ansiBold ++ colorCode color ++ text ++ ansiReset
