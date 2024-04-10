@@ -2,7 +2,8 @@
 
 import Action (Keymap, parseKeymap)
 import Args (Args (..), parseAndValidateArgs)
-import Combo (Combo (..), parseCombos)
+import Combo (Combo (..), advanceCombo, parseCombos)
+import Control.Monad (when)
 import Data.List (intercalate)
 import Keyboard (getAction)
 import System.IO (
@@ -38,13 +39,20 @@ parseFile filename = do
 enqueue :: Int -> a -> [a] -> [a]
 enqueue maxSize x xs = take maxSize (x : xs)
 
+advanceAndPrint :: Combo -> String -> IO Combo
+advanceAndPrint combo action = do
+  let (isFinished, newCombo) = advanceCombo combo action
+  when isFinished $ putStrLn (comboStr newCombo)
+  return newCombo
+
 execute :: Keymap -> [Combo] -> [String] -> Int -> IO ()
 execute keymap combos actions maxSize = do
   action <- getAction keymap
   let newActions = enqueue maxSize action actions
   putStrLn $ intercalate ", " newActions
+  newCombos <- mapM (`advanceAndPrint` action) combos
   putStrLn ""
-  execute keymap combos newActions maxSize
+  execute keymap newCombos newActions maxSize
 
 main :: IO ()
 main = do

@@ -1,4 +1,4 @@
-module Combo (Combo (..), parseCombos) where
+module Combo (Combo (..), parseCombos, advanceCombo) where
 
 import Data.List (find, nub)
 import Data.List.Split (splitOn)
@@ -7,11 +7,13 @@ import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Utils (panic, uncurry3)
 
+type DFA = [Map.Map String Int]
+
 data Combo = Combo
   { comboLen :: Int
   , comboStr :: String
   , comboState :: Int
-  , comboDFA :: [Map.Map String Int]
+  , comboDFA :: DFA
   }
   deriving (Show)
 
@@ -29,7 +31,7 @@ buildState i actions uniqueActions = Map.fromList (map (\a -> (a, findPositionDF
 buildDFA :: [String] -> [Map.Map String Int]
 buildDFA actions = do
   let uniqueActions = nub actions
-  map (uncurry3 buildState) $ zip3 [0 .. length uniqueActions - 1] (repeat actions) (repeat uniqueActions)
+  map (uncurry3 buildState) $ zip3 [0 .. length uniqueActions] (repeat actions) (repeat uniqueActions)
 
 -- TODO: maybe handle action not in keymap
 newCombo :: [String] -> String -> String -> Combo
@@ -63,3 +65,12 @@ parseCombos' (comboLine : comboLines) prevCombos comboCache = do
 
 parseCombos :: [String] -> IO [Combo]
 parseCombos comboLines = parseCombos' comboLines [] Set.empty
+
+advanceCombo :: Combo -> String -> (Bool, Combo)
+advanceCombo combo action = do
+  let dfa = comboDFA combo
+  let mapping = dfa !! comboState combo
+  let newState = fromMaybe 0 (Map.lookup action mapping)
+  if newState == comboLen combo
+    then (True, combo{comboState = 0})
+    else (False, combo{comboState = newState})
