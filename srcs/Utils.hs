@@ -5,12 +5,15 @@ module Utils where
 import Data.Char (isSpace)
 import System.Exit (ExitCode (ExitFailure), exitWith)
 
+panic :: forall a. String -> IO a
+panic s = do
+  putStrLn s
+  exitWith (ExitFailure 1)
+
 trim :: String -> String
 trim = f . f
  where
   f = reverse . dropWhile isSpace
 
-panic :: forall a. String -> IO a
-panic s = do
-  putStrLn s
-  exitWith (ExitFailure 1)
+uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
+uncurry3 f (a, b, c) = f a b c
