@@ -1,8 +1,6 @@
-module Keyboard (getAction) where
+module Keyboard (getKey) where
 
 import Data.Char (toUpper)
-import qualified Data.Map as Map
-import Keymap (Keymap)
 import System.IO (hReady, stdin)
 import Utils (isAsciiLetter)
 
@@ -24,11 +22,3 @@ getKey = do
     "\ESC[D" -> return "LEFT"
     [c] | isAsciiLetter c -> return [toUpper c]
     _ -> getKey
-
--- TODO: also use for Gamepad
-getAction :: Keymap -> IO String
-getAction keymap = do
-  key <- getKey
-  case Map.lookup key keymap of
-    Just action -> return action
-    Nothing -> getAction keymap

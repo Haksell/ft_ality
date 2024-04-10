@@ -5,7 +5,8 @@ import Colors (Color (..), putColorful)
 import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
 import Data.List (intercalate)
-import Keyboard (getAction)
+import qualified Data.Map as Map
+import Keyboard (getKey)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import System.IO (
@@ -33,6 +34,14 @@ advanceDebug combo action = do
   let (isFinished, newCombo) = advanceCombo combo action
   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
   return newCombo
+
+-- TODO: boolean to check if gamepad
+getAction :: Keymap -> IO String
+getAction keymap = do
+  key <- getKey
+  case Map.lookup key keymap of
+    Just action -> return action
+    Nothing -> getAction keymap
 
 execute :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
 execute debug keymap combos actions maxSize = do
