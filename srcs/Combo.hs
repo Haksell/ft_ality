@@ -68,8 +68,7 @@ parseCombos comboLines = parseCombos' comboLines [] Set.empty
 
 advanceCombo :: Combo -> String -> (Bool, Combo)
 advanceCombo combo action = do
-  let dfa = comboDFA combo
-  let mapping = dfa !! comboState combo
+  let mapping = comboDFA combo !! comboState combo
   let newState = fromMaybe 0 (Map.lookup action mapping)
   if newState == comboLen combo
     then (True, combo{comboState = 0})
