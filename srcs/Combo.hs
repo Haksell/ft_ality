@@ -1,5 +1,6 @@
 module Combo (Combo (..), parseCombos) where
 
+import Data.List (nub)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -16,14 +17,18 @@ data Combo = Combo
 type ComboCache = Set.Set (String, String)
 
 buildDFA :: [String] -> [Map.Map String Int]
-buildDFA _ = []
+buildDFA actions = do
+  let uniqueActions = nub actions
+  map buildState [0 .. length uniqueActions - 1]
+ where
+  buildState i = Map.empty
 
 -- TODO: maybe handle action not in keymap
 newCombo :: [String] -> String -> String -> Combo
 newCombo actions name fighter =
   Combo
     { Combo.comboLen = length actions
-    , Combo.comboStr = name ++ "(" ++ fighter ++ ") !!"
+    , Combo.comboStr = name ++ " (" ++ fighter ++ ") !!"
     , Combo.comboState = 0
     , Combo.comboDFA = buildDFA actions
     }
