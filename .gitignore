@@ -1,4 +1,4 @@
 dist-newstyle
 build
 .cabal*
-ft_ali.py
+__pycache__
