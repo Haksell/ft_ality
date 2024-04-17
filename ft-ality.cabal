@@ -15,11 +15,11 @@ executable ft_ality
     Args
     Colors
     Combo
+    GameControllerManager
     Keyboard
     Keymap
     Parsing
     Utils
-    GameControllerManager
 
   hs-source-dirs:   srcs
   default-language: Haskell2010
@@ -27,6 +27,6 @@ executable ft_ality
     , base
     , containers
     , optparse-applicative
-    , split
     , sdl2
+    , split
     , vector
