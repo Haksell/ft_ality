@@ -15,7 +15,7 @@ executable ft_ality
     Args
     Colors
     Combo
-    GameControllerManager
+    Gamepad
     Keyboard
     Keymap
     Parsing

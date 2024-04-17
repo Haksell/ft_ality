@@ -3,10 +3,8 @@ import Colors (Color (..), putColorful)
 import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
 import Data.List (intercalate)
-import GameControllerManager (
-  getActionGamepad,
-  initGameContoller,
- )
+import Gamepad (getActionGamepad, initGameContoller)
+import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import System.IO (
@@ -16,7 +14,6 @@ import System.IO (
   stdin,
  )
 import Utils (enqueue)
-import Keyboard (getActionKeyboard)
 
 printInfo :: Keymap -> [Combo] -> IO ()
 printInfo keymap combos = do

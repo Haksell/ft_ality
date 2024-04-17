@@ -1,6 +1,6 @@
 {-# OPTIONS_GHC -Wno-unused-do-bind #-}
 
-module GameControllerManager (initGameContoller, getActionGamepad) where
+module Gamepad (initGameContoller, getActionGamepad) where
 
 import Data.Char (toUpper)
 import qualified Data.Map as Map
