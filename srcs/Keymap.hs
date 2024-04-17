@@ -63,9 +63,10 @@ parseMapping keymapLine = do
     [key, action] -> return (key, action)
     _ -> panic "Action line should be in the following format: key/action"
 
-printKeymap :: Keymap -> IO ()
-printKeymap keymap = do
+printKeymap :: Keymap -> Bool -> IO ()
+printKeymap keymap gamepad = do
   putColorful Green "=== KEYMAP ==="
+  let filterFunc (k, _) = (if gamepad then elem else notElem) k validButtons
   mapM_
     (\(k, v) -> putStrLn $ k ++ " -> " ++ v)
-    (sortBy (compare `on` length . fst) (Map.toList keymap))
+    (sortBy (compare `on` length . fst) (filter filterFunc (Map.toList keymap)))

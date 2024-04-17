@@ -15,9 +15,9 @@ import System.IO (
  )
 import Utils (enqueue)
 
-printInfo :: Keymap -> [Combo] -> IO ()
-printInfo keymap combos = do
-  printKeymap keymap
+printInfo :: Keymap -> [Combo] -> Bool -> IO ()
+printInfo keymap combos gamepad = do
+  printKeymap keymap gamepad
   printCombos combos
   putColorful Green (replicate 40 '=')
 
@@ -67,7 +67,7 @@ main = do
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
   (keymap, combos) <- parseFile (argFilename args)
-  printInfo keymap combos -- Don't print unused keymap
+  printInfo keymap combos (argGamepad args)
   when (argGamepad args) initGameContoller
   let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
   executeFunc (argDebug args) keymap combos [] (maximum $ map comboLen combos)
