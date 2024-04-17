@@ -25,3 +25,4 @@
 -   https://www.stackbuilders.com/blog/gui-application/
 -   https://bradrn.com/posts/hs-gui-libs.html
 -   https://www.reddit.com/r/haskell/comments/eai2r1/recommended_gui_library/
+-   https://diagrams.github.io/gallery.html
