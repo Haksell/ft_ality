@@ -7,12 +7,7 @@ import Gamepad (getActionGamepad, initGameContoller)
 import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
-import System.IO (
-  BufferMode (NoBuffering),
-  hSetBuffering,
-  hSetEcho,
-  stdin,
- )
+import System.IO (BufferMode (NoBuffering), hSetBuffering, hSetEcho, stdin)
 import Utils (enqueue)
 
 printInfo :: Keymap -> [Combo] -> Bool -> IO ()
