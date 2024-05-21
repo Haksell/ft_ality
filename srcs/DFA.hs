@@ -58,8 +58,8 @@ parseDFA' (comboLine : comboLines) prevCombos comboCache = do
   (combo, newComboCache) <- parseCombo comboLine comboCache
   parseDFA' comboLines (combo : prevCombos) newComboCache
 
-parseDFA :: [String] -> IO [Combo]
-parseDFA comboLines = do
+parseDFA :: [String] -> Set.Set String -> IO [Combo]
+parseDFA comboLines _ = do
   combos <- parseDFA' comboLines [] Set.empty
   return $ sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos
 

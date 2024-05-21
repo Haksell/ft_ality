@@ -4,6 +4,8 @@ import DFA (parseDFA)
 import Keymap (Keymap, parseKeymap)
 import Utils (panic, trim)
 import Combo (Combo)
+import qualified Data.Set as Set
+import qualified Data.Map as Map
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
@@ -21,6 +23,6 @@ parseFile filename = do
   case sections of
     [keymapSection, combosSection] -> do
       keymap <- parseKeymap keymapSection
-      dfa <- parseDFA combosSection
+      dfa <- parseDFA combosSection (Set.fromList $ Map.elems keymap)
       return (keymap, dfa)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)
