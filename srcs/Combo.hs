@@ -12,12 +12,12 @@ import Utils (panic, uncurry3)
 type DFA = [Map.Map String Int]
 
 data Combo = Combo
-  { comboLen :: Int
-  , comboActions :: [String]
-  , comboName :: String
-  , comboFighter :: String
-  , comboState :: Int
-  , comboDFA :: DFA
+  { comboLen :: Int,
+    comboActions :: [String],
+    comboName :: String,
+    comboFighter :: String,
+    comboState :: Int,
+    comboDFA :: DFA
   }
 
 type ComboCache = Set.Set (String, String)
@@ -40,12 +40,12 @@ buildDFA actions = do
 newCombo :: [String] -> String -> String -> Combo
 newCombo actions name fighter =
   Combo
-    { Combo.comboLen = length actions
-    , Combo.comboActions = actions
-    , Combo.comboName = colored Blue name
-    , Combo.comboFighter = colored Red fighter
-    , Combo.comboState = 0
-    , Combo.comboDFA = buildDFA actions
+    { Combo.comboLen = length actions,
+      Combo.comboActions = actions,
+      Combo.comboName = colored Blue name,
+      Combo.comboFighter = colored Red fighter,
+      Combo.comboState = 0,
+      Combo.comboDFA = buildDFA actions
     }
 
 parseCombo :: String -> ComboCache -> IO (Combo, ComboCache)
@@ -57,8 +57,8 @@ parseCombo comboLine comboCache = do
         then panic $ "Duplicate combo: " ++ name ++ "(" ++ fighter ++ ")"
         else
           return
-            ( newCombo (splitOn "," actions) name fighter
-            , Set.insert (name, fighter) comboCache
+            ( newCombo (splitOn "," actions) name fighter,
+              Set.insert (name, fighter) comboCache
             )
     _ -> panic "Combo line should be in the following format: moves/name/fighter"
 
@@ -78,7 +78,7 @@ advanceCombo combo action = do
   let mapping = comboDFA combo !! comboState combo
   let newState = fromMaybe 0 (Map.lookup action mapping)
   let isComplete = newState == comboLen combo
-  (isComplete, combo{comboState = if isComplete then 0 else newState})
+  (isComplete, combo {comboState = if isComplete then 0 else newState})
 
 printInfoCombo :: Combo -> IO ()
 printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)

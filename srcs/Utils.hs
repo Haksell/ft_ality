@@ -18,8 +18,8 @@ panic s = do
 
 trim :: String -> String
 trim = f . f
- where
-  f = reverse . dropWhile isSpace
+  where
+    f = reverse . dropWhile isSpace
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c

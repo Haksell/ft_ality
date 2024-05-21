@@ -6,12 +6,12 @@ import Utils (panic, trim)
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
- where
-  f "" [] = []
-  f line [] = [[line]]
-  f "" ([] : acc) = [] : acc
-  f "" acc = [] : acc
-  f line (x : xs) = (line : x) : xs
+  where
+    f "" [] = []
+    f line [] = [[line]]
+    f "" ([] : acc) = [] : acc
+    f "" acc = [] : acc
+    f line (x : xs) = (line : x) : xs
 
 parseFile :: FilePath -> IO (Keymap, [Combo])
 parseFile filename = do

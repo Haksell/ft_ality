@@ -3,30 +3,30 @@
 module Args (Args (..), parseAndValidateArgs) where
 
 import Data.List (isSuffixOf)
-import Options.Applicative (
-  Parser,
-  argument,
-  execParser,
-  fullDesc,
-  help,
-  helper,
-  info,
-  long,
-  metavar,
-  short,
-  str,
-  switch,
-  (<**>),
- )
+import Options.Applicative
+  ( Parser,
+    argument,
+    execParser,
+    fullDesc,
+    help,
+    helper,
+    info,
+    long,
+    metavar,
+    short,
+    str,
+    switch,
+    (<**>),
+  )
 import Utils (panic)
 
 grammarExtension :: String
 grammarExtension = ".gmr"
 
 data Args = Args
-  { argFilename :: FilePath
-  , argDebug :: Bool
-  , argGamepad :: Bool
+  { argFilename :: FilePath,
+    argDebug :: Bool,
+    argGamepad :: Bool
   }
 
 parseArgs :: Parser Args
