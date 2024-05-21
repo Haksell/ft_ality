@@ -1,9 +1,9 @@
-module DFA (parseDFA, advanceCombo) where
+module DFA (parseDFA) where
 
 import Combo (Combo (..))
-import Colors (Color (..), colored, putColorful)
+import Colors (Color (..), colored)
 import Data.Function (on)
-import Data.List (find, intercalate, nub, sortBy)
+import Data.List (find, nub, sortBy)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
@@ -62,10 +62,3 @@ parseDFA :: [String] -> Set.Set String -> IO [Combo]
 parseDFA comboLines _ = do
   combos <- parseDFA' comboLines [] Set.empty
   return $ sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos
-
-advanceCombo :: Combo -> String -> (Bool, Combo)
-advanceCombo combo action = do
-  let mapping = comboDFA combo !! comboState combo
-  let newState = fromMaybe 0 (Map.lookup action mapping)
-  let isComplete = newState == comboLen combo
-  (isComplete, combo {comboState = if isComplete then 0 else newState})
