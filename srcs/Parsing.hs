@@ -1,8 +1,9 @@
 module Parsing (parseFile) where
 
-import Combo (Combo, parseCombos)
+import DFA (parseDFA)
 import Keymap (Keymap, parseKeymap)
 import Utils (panic, trim)
+import Combo (Combo)
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
@@ -20,6 +21,6 @@ parseFile filename = do
   case sections of
     [keymapSection, combosSection] -> do
       keymap <- parseKeymap keymapSection
-      combos <- parseCombos combosSection
-      return (keymap, combos)
+      dfa <- parseDFA combosSection
+      return (keymap, dfa)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)

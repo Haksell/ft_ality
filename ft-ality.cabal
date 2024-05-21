@@ -15,6 +15,7 @@ executable ft_ality
     Args
     Colors
     Combo
+    DFA
     Gamepad
     Keyboard
     Keymap
