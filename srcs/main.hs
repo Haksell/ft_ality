@@ -17,24 +17,14 @@ printInfo keymap combos gamepad = do
   printCombos combos
   putColorful Green (replicate 40 '=')
 
-advanceQuiet :: DFA -> String -> IO DFA
-advanceQuiet dfa action = do
-  let (newDFA, finishedCombos) = advanceDFA dfa action
-  mapM_ printSuccessfulCombo finishedCombos
-  return newDFA
-
--- advanceDebug :: DFA -> String -> IO DFA
--- advanceDebug combo action = do
---   let (isFinished, newCombo) = advanceCombo combo action
---   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
---   return newCombo
+-- TODO: advanceQuiet, advanceDebug
 
 handleOneAction :: Bool -> String -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleOneAction debug action dfa queue maxSize = do
   let newQueue = enqueue maxSize action queue
   putStrLn $ intercalate ", " (reverse newQueue)
-  -- let advanceFunc = if debug then advanceDebug else advanceQuiet
-  newDFA <- advanceQuiet dfa action
+  let (newDFA, finishedCombos) = advanceDFA dfa action
+  mapM_ printSuccessfulCombo finishedCombos
   putStrLn ""
   return (newQueue, newDFA)
 
