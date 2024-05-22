@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Combo (Combo (..), printCombos, printSuccessfulCombo, printUnsuccessfulCombo, parseCombos) where
+module Combo (Combo (..), printCombos, parseCombos) where
 
 import Colors (Color (..), colored, putColorful)
 import Control.Monad (when)
@@ -27,20 +27,6 @@ printCombos :: [Combo] -> IO ()
 printCombos combos = do
   putColorful Green "=== COMBOS ==="
   mapM_ printInfoCombo combos
-
-printSuccessfulCombo :: Combo -> IO ()
-printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
-
-printUnsuccessfulCombo :: Combo -> IO ()
-printUnsuccessfulCombo combo =
-  putStrLn $
-    comboFighter combo
-      ++ ": "
-      ++ comboName combo
-      ++ ": "
-      ++ "TODO" -- state
-      ++ "/"
-      ++ show (comboLen combo)
 
 parseCombo :: String -> Set.Set String -> IO Combo
 parseCombo comboLine possibleActions = do

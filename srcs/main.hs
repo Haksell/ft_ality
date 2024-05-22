@@ -1,9 +1,9 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (..), printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
+import Combo (Combo (..), printCombos)
 import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
-import Data.List (intercalate)
+import Data.List (intercalate, isSuffixOf)
 import Gamepad (getActionGamepad, initGameContoller)
 import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
@@ -19,9 +19,7 @@ printInfo keymap combos gamepad = do
 
 handleOneAction :: Bool -> String -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleOneAction debug action combos dfa queue maxSize = do
-  let newQueue = enqueue maxSize action queue
   putStrLn $ intercalate ", " (reverse newQueue)
-  let (newDFA, finishedCombos) = advanceDFA dfa action
   mapM_
     ( \c ->
         if c `elem` finishedCombos
@@ -31,6 +29,34 @@ handleOneAction debug action combos dfa queue maxSize = do
     combos
   putStrLn ""
   return (newQueue, newDFA)
+ where
+  newQueue = enqueue maxSize action queue
+  (newDFA, finishedCombos) = advanceDFA dfa action
+
+  printSuccessfulCombo :: Combo -> IO ()
+  printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
+
+  printUnsuccessfulCombo :: Combo -> IO ()
+  printUnsuccessfulCombo combo = do
+    -- putStrLn "================"
+    -- print $ comboActions combo
+    -- print $ newQueue
+    -- putStrLn "================"
+    putStrLn $
+      comboFighter combo
+        ++ ": "
+        ++ comboName combo
+        ++ ": "
+        ++ (show $ longestSuffixPrefix newQueue (comboActions combo))
+        ++ "/"
+        ++ show (comboLen combo)
+
+  longestSuffixPrefix :: (Eq a) => [a] -> [a] -> [a]
+  longestSuffixPrefix q actions = last $ filter (`isSuffixOf` q) (inits actions)
+
+  inits :: [a] -> [[a]]
+  inits [] = [[]]
+  inits xs = inits (init xs) ++ [xs]
 
 handleMultipleActions :: Bool -> [String] -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleMultipleActions debug actions combos dfa queue maxSize =
