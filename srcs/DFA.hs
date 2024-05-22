@@ -100,7 +100,8 @@ buildFinishingStates combos states actions = do
   foldl f empty combos
  where
   f finishingStates combo = do
-    let state = last $ comboActions combo
+    let start = init $ comboActions combo
+    -- TODO
     finishingStates
 
 buildTransitions :: [Combo] -> DFAStates -> DFAActions -> DFATransitions
