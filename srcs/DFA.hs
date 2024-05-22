@@ -77,13 +77,24 @@ data DFA = DFA
 buildActions :: [Combo] -> Map.Map String Int
 buildActions combos = Map.empty
 
+buildStates :: [Combo] -> Map.Map [String] Int
+buildStates combos = Map.empty
+
+buildFinishingStates :: [Combo] -> Map.Map [String] Int -> Array.Array Int (Array.Array Int [Combo])
+buildFinishingStates combos states = array (0, -1) []
+
+buildTransitions :: [Combo] -> Map.Map [String] Int -> Map.Map String Int -> Array.Array Int (Array.Array Int Int)
+buildTransitions combos states actions = array (0, -1) []
+
 buildDFA :: [Combo] -> DFA
 buildDFA combos = do
+  let actions = buildActions combos
+  let states = buildStates combos
   DFA
     { dfaMaxLen = maximum (map (length . comboActions) combos)
-    , dfaActions = buildActions combos
-    , dfaFinishingStates = array (0, -1) []
-    , dfaTransitions = array (0, -1) []
+    , dfaActions = actions
+    , dfaFinishingStates = buildFinishingStates combos states
+    , dfaTransitions = buildTransitions combos states actions
     , dfaState = 0
     }
 
