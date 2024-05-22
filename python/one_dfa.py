@@ -40,15 +40,15 @@ class DFA:
                     action_idx = self.__actions[combo.actions[-1]]
                     self.__finishing_states[state_idx][action_idx].append(combo)
 
-        self.__dfa = [[0] * len(self.__actions) for _ in range(len(states))]
+        self.__transitions = [[0] * len(self.__actions) for _ in range(len(states))]
         for state in states:
             for action in self.__actions:
                 suffix = (*state, action)
                 while suffix:
                     if suffix in states:
-                        self.__dfa[states[state]][self.__actions[action]] = states[
-                            suffix
-                        ]
+                        self.__transitions[states[state]][self.__actions[action]] = (
+                            states[suffix]
+                        )
                         break
                     suffix = suffix[1:]
 
@@ -61,7 +61,7 @@ class DFA:
             return []
         else:
             completed_combos = self.__finishing_states[self.__state][action_idx]
-            self.__state = self.__dfa[self.__state][action_idx]
+            self.__state = self.__transitions[self.__state][action_idx]
             return completed_combos
 
     @property
