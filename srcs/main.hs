@@ -17,8 +17,6 @@ printInfo keymap combos gamepad = do
   printCombos combos
   putColorful Green (replicate 40 '=')
 
--- TODO: advanceQuiet, advanceDebug
-
 handleOneAction :: Bool -> String -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleOneAction debug action combos dfa queue maxSize = do
   let newQueue = enqueue maxSize action queue
