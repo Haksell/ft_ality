@@ -2,7 +2,10 @@ help:
 	@cabal run -v0 exe:ft_ality -- --help
 
 run:
-	@cabal run -v0 exe:ft_ality -- grammars/valid/mk9.gmr
+	@cabal run -v0 exe:ft_ality -- grammars/valid/debug.gmr
+
+debug:
+	@cabal run -v0 exe:ft_ality -- grammars/valid/debug.gmr --debug
 
 install:
 	cabal update && cabal install --overwrite-policy=always
