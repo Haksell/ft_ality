@@ -32,7 +32,6 @@ handleOneAction debug action combos dfa queue maxSize = do
   putStrLn ""
   return (newQueue, newDFA)
 
--- TODO: verify it works the same as old recursion
 handleMultipleActions :: Bool -> [String] -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleMultipleActions debug actions combos dfa queue maxSize =
   foldM (\(q, d) action -> handleOneAction debug action combos d q maxSize) (queue, dfa) actions

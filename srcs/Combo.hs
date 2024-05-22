@@ -52,7 +52,7 @@ parseCombo comboLine possibleActions = do
       when (null actions) $ panic ("No actions for combo " ++ representation)
       when ("" `elem` actions) $ panic ("Empty action for combo " ++ representation)
       when (any (`Set.notMember` possibleActions) actions) $
-        panic ("Unknown action for combo " ++ representation) -- TODO: say which action
+        panic ("Unknown action for combo " ++ representation)
       return
         Combo
           { comboName = colored Blue name
