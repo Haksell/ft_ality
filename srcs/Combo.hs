@@ -2,9 +2,8 @@
 
 module Combo (Combo (..), parseCombos) where
 
-import Colors (Color (..), colored, putColorful)
+import Colors (Color (..), colored)
 import Control.Monad (when)
-import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import qualified Data.Set as Set
 import Utils (panic)

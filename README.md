@@ -2,11 +2,10 @@
 
 ## TODO
 
--   [ ] check sleepy commit from wednesday
--   [ ] check parsing
--   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] `--mode=normal|debug|gui` with normal as default
 -   [ ] gui
+-   [ ] check parsing
+-   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] the inputs should always be processed line by line
 -   [ ] make everything tail-recursive or use higher-order functions
 
