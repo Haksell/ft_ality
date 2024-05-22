@@ -2,6 +2,8 @@
 
 module Utils where
 
+import Data.Array (listArray)
+import qualified Data.Array as Array
 import Data.Char (isAlpha, isAscii, isSpace)
 import System.Exit (ExitCode (ExitFailure), exitWith)
 
@@ -27,3 +29,8 @@ prefixes xs = xs : prefixes (init xs)
 
 uncurry3 :: (a -> b -> c -> d) -> (a, b, c) -> d
 uncurry3 f (a, b, c) = f a b c
+
+arrayFull :: Int -> Int -> a -> Array.Array Int (Array.Array Int a)
+arrayFull rows cols value = listArray (0, rows - 1) (replicate rows row)
+ where
+  row = listArray (0, cols - 1) (replicate cols value)

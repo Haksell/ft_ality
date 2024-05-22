@@ -1,10 +1,10 @@
 module DFA (DFA, advanceDFA, buildDFA) where
 
 import Combo (Combo (..))
-import Data.Array (listArray)
 import qualified Data.Array as Array
 import Data.List (isSuffixOf, nub)
 import qualified Data.Map as Map
+import Utils (arrayFull)
 
 type DFAActions = Map.Map String Int
 type DFAStates = Map.Map [String] Int
@@ -26,11 +26,6 @@ buildActions combos = reverseIndex $ concatMap comboActions combos
 
 buildStates :: [Combo] -> DFAStates
 buildStates combos = reverseIndex $ concatMap ((\x -> map (`take` x) [0 .. length x]) . comboActions) combos
-
-arrayFull :: Int -> Int -> a -> Array.Array Int (Array.Array Int a)
-arrayFull rows cols value = listArray (0, rows - 1) (replicate rows row)
- where
-  row = listArray (0, cols - 1) (replicate cols value)
 
 buildFinishingStates :: [Combo] -> DFAStates -> DFAActions -> DFAFinishingStates
 buildFinishingStates combos states actions = do

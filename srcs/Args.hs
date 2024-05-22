@@ -40,8 +40,7 @@ validateArgs :: Args -> IO Args
 validateArgs args =
   if grammarExtension `isSuffixOf` argFilename args
     then return args
-    else do
-      panic $ "Error: the file path must end with '" ++ grammarExtension ++ "'."
+    else panic $ "Error: the file path must end with '" ++ grammarExtension ++ "'."
 
 parseAndValidateArgs :: IO Args
 parseAndValidateArgs = do

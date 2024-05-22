@@ -2,19 +2,21 @@
 
 ## TODO
 
--   [ ] Check parsing
--   [ ] Simple tester (even just `make valid` and `make invalid`)
+-   [ ] check parsing
+-   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] `--mode=normal|debug|gui` with normal as default
--   [ ] GUI
--   [ ] Remove python folder
+-   [ ] gui
+-   [ ] the inputs should always be processed line by line
+-   [ ] make everything tail-recursive or use higher-order functions
 
 ## Code
 
--   [ ] Modules (main.hs, ParseArgs.hs, ParseFile.hs, Colors.hs, Automaton.hs)
--   [ ] All recursion is tail-recursive
--   [ ] No function bigger than 20 lines
--   [ ] No global utility functions if they are not reused
--   [ ] Always explicit exports
+-   [ ] all recursion is tail-recursive
+-   [ ] the inputs should always be processed line by line
+-   [ ] no function bigger than 20 lines
+-   [ ] no utility functions at the module level, everything is nested
+-   [ ] modules (should not export unnecessary functions)
+-   [ ] no exceptions
 
 ## Resources
 
