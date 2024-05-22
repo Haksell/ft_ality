@@ -2,6 +2,7 @@
 
 ## TODO
 
+-   [ ] check sleepy commit from wednesday
 -   [ ] check parsing
 -   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] `--mode=normal|debug|gui` with normal as default
