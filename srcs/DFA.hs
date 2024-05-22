@@ -1,7 +1,10 @@
 module DFA (Combo (..), printCombos, printSuccessfulCombo, parseDFA) where
 
 import Colors (Color (..), colored, putColorful)
+import qualified Control.Applicative as Array
 import Control.Monad (when)
+import Data.Array (array)
+import qualified Data.Array as Array
 import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
@@ -30,13 +33,6 @@ printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboN
 
 -- COMBO SECTION END
 
-data DFA = DFA
-  { dfaMaxLen :: Int
-  , dfaActions :: Map.Map String Int
-  }
-
-type ComboCache = Set.Set (String, String)
-
 -- TODO: only return Combo
 parseCombo :: String -> Set.Set String -> IO Combo
 parseCombo comboLine possibleActions = do
@@ -48,7 +44,7 @@ parseCombo comboLine possibleActions = do
       when (null actions) $ panic ("No actions for combo " ++ representation)
       when ("" `elem` actions) $ panic ("Empty action for combo " ++ representation)
       when (any (`Set.notMember` possibleActions) actions) $
-        panic ("Unknown action for combo " ++ representation) -- TODO: say which one
+        panic ("Unknown action for combo " ++ representation) -- TODO: say which action
       return
         Combo
           { comboName = colored Blue name
@@ -57,6 +53,8 @@ parseCombo comboLine possibleActions = do
           , comboLen = length actions
           }
     _ -> panic "Combo line should be in the following format: actions/name/fighter"
+
+type ComboCache = Set.Set (String, String)
 
 parseCombos :: [String] -> Set.Set String -> ComboCache -> IO [Combo]
 parseCombos [] _ _ = return []
@@ -68,11 +66,28 @@ parseCombos (comboLine : comboLines) possibleActions cache = do
   combos <- parseCombos comboLines possibleActions (Set.insert comboIdentity cache)
   return (combo : combos)
 
+data DFA = DFA
+  { dfaMaxLen :: Int
+  , dfaActions :: Map.Map String Int
+  , dfaFinishingStates :: Array.Array Int (Array.Array Int [Combo])
+  , dfaTransitions :: Array.Array Int (Array.Array Int Int)
+  , dfaState :: Int
+  }
+
+buildActions :: [Combo] -> Map.Map String Int
+buildActions combos = Map.empty
+
+buildDFA :: [Combo] -> DFA
+buildDFA combos = do
+  DFA
+    { dfaMaxLen = maximum (map (length . comboActions) combos)
+    , dfaActions = buildActions combos
+    , dfaFinishingStates = array (0, -1) []
+    , dfaTransitions = array (0, -1) []
+    , dfaState = 0
+    }
+
 parseDFA :: [String] -> Set.Set String -> IO DFA
 parseDFA comboLines possibleActions = do
   combos <- parseCombos comboLines possibleActions Set.empty
-  return $
-    DFA
-      { dfaMaxLen = 0
-      , dfaActions = Map.empty
-      }
+  return $ buildDFA combos
