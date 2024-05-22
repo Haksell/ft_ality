@@ -3,13 +3,13 @@ import Colors (Color (..), putColorful)
 import Combo (Combo (..), printCombos)
 import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
-import Data.List (intercalate, isSuffixOf)
+import Data.List (find, intercalate, isSuffixOf)
 import Gamepad (getActionGamepad, initGameContoller)
 import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import System.IO (BufferMode (NoBuffering), hSetBuffering, hSetEcho, stdin)
-import Utils (enqueue)
+import Utils (enqueue, prefixes)
 
 printInfo :: Keymap -> [Combo] -> Bool -> IO ()
 printInfo keymap combos gamepad = do
@@ -38,21 +38,20 @@ handleOneAction debug action combos dfa queue maxSize = do
 
   printUnsuccessfulCombo :: Combo -> IO ()
   printUnsuccessfulCombo combo = do
+    let revQueue = reverse newQueue
+    let comboState =
+          maybe
+            0
+            length
+            (find (`isSuffixOf` revQueue) (prefixes $ comboActions combo))
     putStrLn $
       comboFighter combo
         ++ ": "
         ++ comboName combo
         ++ ": "
-        ++ show (length $ longestSuffixPrefix $ comboActions combo)
+        ++ show comboState
         ++ "/"
         ++ show (comboLen combo)
-
-  longestSuffixPrefix :: [String] -> [String]
-  longestSuffixPrefix actions = head $ filter (\p -> p `isSuffixOf` reverse newQueue) (prefixes actions)
-
-  prefixes :: [a] -> [[a]]
-  prefixes [] = [[]]
-  prefixes xs = xs : prefixes (init xs)
 
 handleMultipleActions :: Bool -> [String] -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleMultipleActions debug actions combos dfa queue maxSize =
