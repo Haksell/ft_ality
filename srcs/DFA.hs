@@ -97,4 +97,10 @@ buildDFA combos = do
     }
 
 advanceDFA :: DFA -> String -> (DFA, [Combo])
-advanceDFA dfa action = (dfa, [])
+advanceDFA dfa action =
+  case Map.lookup action (dfaActions dfa) of
+    Nothing -> (dfa{dfaState = 0}, [])
+    Just actionIdx -> do
+      let completedCombos = dfaFinishingStates dfa Array.! dfaState dfa Array.! actionIdx
+      let newState = dfaTransitions dfa Array.! dfaState dfa Array.! actionIdx
+      (dfa{dfaState = newState}, completedCombos)
