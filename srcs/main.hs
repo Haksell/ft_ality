@@ -1,7 +1,7 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
+import DFA (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Data.List (intercalate)
 import Gamepad (getActionGamepad, initGameContoller)
 import Keyboard (getActionKeyboard)

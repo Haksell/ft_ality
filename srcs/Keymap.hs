@@ -20,32 +20,32 @@ parseKeymap keymapSection = do
 
 buildKeymap :: [(String, String)] -> IO (Either Keymap String)
 buildKeymap = f Map.empty
-  where
-    f keymap [] = return $ Left keymap
-    f keymap ((k, a) : xs) =
-      if Map.member k keymap
-        then return $ Right k
-        else do
-          checkedKey <- checkKey $ map toUpper k
-          f (Map.insert checkedKey a keymap) xs
+ where
+  f keymap [] = return $ Left keymap
+  f keymap ((k, a) : xs) =
+    if Map.member k keymap
+      then return $ Right k
+      else do
+        checkedKey <- checkKey $ map toUpper k
+        f (Map.insert checkedKey a keymap) xs
 
 validKeys :: [String]
 validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
 
 validButtons :: [String]
 validButtons =
-  [ "CONTROLLERBUTTONA",
-    "CONTROLLERBUTTONB",
-    "CONTROLLERBUTTONX",
-    "CONTROLLERBUTTONY",
-    "CONTROLLERBUTTONDPADRIGHT",
-    "CONTROLLERBUTTONDPADUP",
-    "CONTROLLERBUTTONDPADLEFT",
-    "CONTROLLERBUTTONDPADDOWN",
-    "CONTROLLERBUTTONRIGHTSHOULDER",
-    "CONTROLLERBUTTONLEFTSHOULDER",
-    "CONTROLLERBUTTONRIGHTSTICK",
-    "CONTROLLERBUTTONLEFTSTICK"
+  [ "CONTROLLERBUTTONA"
+  , "CONTROLLERBUTTONB"
+  , "CONTROLLERBUTTONX"
+  , "CONTROLLERBUTTONY"
+  , "CONTROLLERBUTTONDPADRIGHT"
+  , "CONTROLLERBUTTONDPADUP"
+  , "CONTROLLERBUTTONDPADLEFT"
+  , "CONTROLLERBUTTONDPADDOWN"
+  , "CONTROLLERBUTTONRIGHTSHOULDER"
+  , "CONTROLLERBUTTONLEFTSHOULDER"
+  , "CONTROLLERBUTTONRIGHTSTICK"
+  , "CONTROLLERBUTTONLEFTSTICK"
   ]
 
 checkKey :: String -> IO String

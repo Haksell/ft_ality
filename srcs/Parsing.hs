@@ -1,20 +1,19 @@
 module Parsing (parseFile) where
 
-import DFA (parseDFA)
+import DFA (Combo, parseDFA)
+import qualified Data.Map as Map
+import qualified Data.Set as Set
 import Keymap (Keymap, parseKeymap)
 import Utils (panic, trim)
-import Combo (Combo)
-import qualified Data.Set as Set
-import qualified Data.Map as Map
 
 splitSections :: [String] -> [[String]]
 splitSections = foldr f []
-  where
-    f "" [] = []
-    f line [] = [[line]]
-    f "" ([] : acc) = [] : acc
-    f "" acc = [] : acc
-    f line (x : xs) = (line : x) : xs
+ where
+  f "" [] = []
+  f line [] = [[line]]
+  f "" ([] : acc) = [] : acc
+  f "" acc = [] : acc
+  f line (x : xs) = (line : x) : xs
 
 parseFile :: FilePath -> IO (Keymap, [Combo])
 parseFile filename = do

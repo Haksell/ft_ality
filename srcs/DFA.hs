@@ -1,14 +1,57 @@
-module DFA (parseDFA) where
+module DFA (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo, parseDFA) where
 
-import Combo (Combo (..))
-import Colors (Color (..), colored)
+import Colors (Color (..), colored, putColorful)
 import Data.Function (on)
-import Data.List (find, nub, sortBy)
+import Data.List (find, intercalate, nub, sortBy)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
 import Utils (panic, uncurry3)
+
+type DFA = [Map.Map String Int]
+
+-- COMBO SECTION START (TODO: Combo.hs)
+
+data Combo = Combo
+  { comboLen :: Int
+  , comboActions :: [String]
+  , comboName :: String
+  , comboFighter :: String
+  , comboState :: Int
+  , comboDFA :: DFA
+  }
+
+advanceCombo :: Combo -> String -> (Bool, Combo)
+advanceCombo combo action = do
+  let mapping = comboDFA combo !! comboState combo
+  let newState = fromMaybe 0 (Map.lookup action mapping)
+  let isComplete = newState == comboLen combo
+  (isComplete, combo{comboState = if isComplete then 0 else newState})
+
+printInfoCombo :: Combo -> IO ()
+printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
+
+printCombos :: [Combo] -> IO ()
+printCombos combos = do
+  putColorful Green "=== COMBOS ==="
+  mapM_ printInfoCombo combos
+
+printSuccessfulCombo :: Combo -> IO ()
+printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
+
+printUnsuccessfulCombo :: Combo -> IO ()
+printUnsuccessfulCombo combo =
+  putStrLn $
+    comboFighter combo
+      ++ ": "
+      ++ comboName combo
+      ++ ": "
+      ++ show (comboState combo)
+      ++ "/"
+      ++ show (comboLen combo)
+
+-- COMBO SECTION END
 
 type ComboCache = Set.Set (String, String)
 
@@ -30,12 +73,12 @@ buildDFA actions = do
 newCombo :: [String] -> String -> String -> Combo
 newCombo actions name fighter =
   Combo
-    { Combo.comboLen = length actions,
-      Combo.comboActions = actions,
-      Combo.comboName = colored Blue name,
-      Combo.comboFighter = colored Red fighter,
-      Combo.comboState = 0,
-      Combo.comboDFA = buildDFA actions
+    { comboLen = length actions
+    , comboActions = actions
+    , comboName = colored Blue name
+    , comboFighter = colored Red fighter
+    , comboState = 0
+    , comboDFA = buildDFA actions
     }
 
 parseCombo :: String -> ComboCache -> IO (Combo, ComboCache)
@@ -47,8 +90,8 @@ parseCombo comboLine comboCache = do
         then panic $ "Duplicate combo: " ++ name ++ "(" ++ fighter ++ ")"
         else
           return
-            ( newCombo (splitOn "," actions) name fighter,
-              Set.insert (name, fighter) comboCache
+            ( newCombo (splitOn "," actions) name fighter
+            , Set.insert (name, fighter) comboCache
             )
     _ -> panic "Combo line should be in the following format: moves/name/fighter"
 

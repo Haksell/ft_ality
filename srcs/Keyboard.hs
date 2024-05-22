@@ -8,11 +8,11 @@ import Utils (isAsciiLetter)
 
 getKeyPress :: IO [Char]
 getKeyPress = reverse <$> getKeyPress' ""
-  where
-    getKeyPress' chars = do
-      char <- getChar
-      more <- hReady stdin
-      (if more then getKeyPress' else return) (char : chars)
+ where
+  getKeyPress' chars = do
+    char <- getChar
+    more <- hReady stdin
+    (if more then getKeyPress' else return) (char : chars)
 
 getKey :: IO String
 getKey = do
