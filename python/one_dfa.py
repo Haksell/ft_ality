@@ -150,8 +150,7 @@ def main():
         for action in gen_actions(keymap):
             actions.append(action)
             print(", ".join(actions))
-            finished_combos = dfa.advance(action)
-            for combo in finished_combos:
+            for combo in dfa.advance(action):
                 print(combo)
             print()
     except KeyboardInterrupt:
