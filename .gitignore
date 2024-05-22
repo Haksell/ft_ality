@@ -1,4 +1,5 @@
 dist-newstyle
 build
 .cabal*
+.nfs*
 __pycache__
