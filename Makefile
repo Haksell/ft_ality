@@ -1,16 +1,22 @@
+RUN := cabal run -v0 exe:ft_ality --
 FILE := grammars/valid/debug.gmr
 
 help:
-	@cabal run -v0 exe:ft_ality -- --help
+	@$(RUN) --help
 
 run:
-	@cabal run -v0 exe:ft_ality -- $(FILE)
+	@$(RUN) $(FILE)
 
 debug:
-	@cabal run -v0 exe:ft_ality -- $(FILE) --debug
+	@$(RUN) $(FILE) --debug
+
+ # TODO: make gui
 
 install:
 	cabal update && cabal install --overwrite-policy=always
 
 clean:
 	rm -rf build dist-newstyle .cabal* .ghc.environment* __pycache__ */__pycache__
+
+loc:
+	@find srcs -name '*.hs' | sort | xargs wc -l

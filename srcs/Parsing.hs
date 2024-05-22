@@ -1,6 +1,7 @@
 module Parsing (parseFile) where
 
-import DFA (Combo, parseDFA)
+import Combo (Combo, parseCombos)
+import DFA (DFA, buildDFA)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
 import Keymap (Keymap, parseKeymap)
@@ -15,13 +16,13 @@ splitSections = foldr f []
   f "" acc = [] : acc
   f line (x : xs) = (line : x) : xs
 
-parseFile :: FilePath -> IO (Keymap, [Combo])
+parseFile :: FilePath -> IO (Keymap, [Combo], DFA)
 parseFile filename = do
   content <- trim <$> readFile filename
   let sections = splitSections $ map trim $ lines content
   case sections of
     [keymapSection, combosSection] -> do
       keymap <- parseKeymap keymapSection
-      dfa <- parseDFA combosSection (Set.fromList $ Map.elems keymap)
-      return (keymap, dfa)
+      combos <- parseCombos combosSection (Set.fromList $ Map.elems keymap)
+      return (keymap, combos, buildDFA combos)
     _ -> panic $ "Error: wrong number of sections: " ++ show (length sections)

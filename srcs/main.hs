@@ -1,7 +1,8 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
+import Combo (Combo (comboActions), printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (when)
-import DFA (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
+import DFA (DFA, advanceDFA)
 import Data.List (intercalate)
 import Gamepad (getActionGamepad, initGameContoller)
 import Keyboard (getActionKeyboard)
@@ -16,53 +17,54 @@ printInfo keymap combos gamepad = do
   printCombos combos
   putColorful Green (replicate 40 '=')
 
-advanceQuiet :: Combo -> String -> IO Combo
-advanceQuiet combo action = do
-  let (isFinished, newCombo) = advanceCombo combo action
-  when isFinished $ printSuccessfulCombo newCombo
-  return newCombo
+advanceQuiet :: DFA -> String -> IO DFA
+advanceQuiet dfa action = do
+  let (newDFA, finishedCombos) = advanceDFA dfa action
+  mapM_ printSuccessfulCombo finishedCombos
+  return newDFA
 
-advanceDebug :: Combo -> String -> IO Combo
-advanceDebug combo action = do
-  let (isFinished, newCombo) = advanceCombo combo action
-  (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
-  return newCombo
+-- advanceDebug :: DFA -> String -> IO DFA
+-- advanceDebug combo action = do
+--   let (isFinished, newCombo) = advanceCombo combo action
+--   (if isFinished then printSuccessfulCombo else printUnsuccessfulCombo) newCombo
+--   return newCombo
 
-handleOneAction :: Bool -> String -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
-handleOneAction debug action combos queue maxSize = do
+handleOneAction :: Bool -> String -> DFA -> [String] -> Int -> IO ([String], DFA)
+handleOneAction debug action dfa queue maxSize = do
   let newQueue = enqueue maxSize action queue
   putStrLn $ intercalate ", " (reverse newQueue)
-  let advanceFunc = if debug then advanceDebug else advanceQuiet
-  newCombos <- mapM (`advanceFunc` action) combos
+  -- let advanceFunc = if debug then advanceDebug else advanceQuiet
+  newDFA <- advanceQuiet dfa action
   putStrLn ""
-  return (newQueue, newCombos)
+  return (newQueue, newDFA)
 
-handleMultipleActions :: Bool -> [String] -> [Combo] -> [String] -> Int -> IO ([String], [Combo])
+handleMultipleActions :: Bool -> [String] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleMultipleActions _ [] combos queue _ = return (queue, combos)
 handleMultipleActions debug (action : newActions) combos queue maxSize = do
-  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
-  handleMultipleActions debug newActions newCombos newQueue maxSize
+  (newQueue, newDFA) <- handleOneAction debug action combos queue maxSize
+  handleMultipleActions debug newActions newDFA newQueue maxSize
 
-executeKeyboard :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-executeKeyboard debug keymap combos queue maxSize = do
+executeKeyboard :: Bool -> Keymap -> DFA -> [String] -> Int -> IO ()
+executeKeyboard debug keymap dfa queue maxSize = do
   action <- getActionKeyboard keymap
-  (newQueue, newCombos) <- handleOneAction debug action combos queue maxSize
-  executeKeyboard debug keymap newCombos newQueue maxSize
+  (newQueue, newDFA) <- handleOneAction debug action dfa queue maxSize
+  executeKeyboard debug keymap newDFA newQueue maxSize
 
-executeGamePad :: Bool -> Keymap -> [Combo] -> [String] -> Int -> IO ()
-executeGamePad debug keymap combos queue maxSize = do
+executeGamePad :: Bool -> Keymap -> DFA -> [String] -> Int -> IO ()
+executeGamePad debug keymap dfa queue maxSize = do
   actions <- getActionGamepad keymap
-  when (null actions) $ executeGamePad debug keymap combos queue maxSize
-  (newQueue, newCombos) <- handleMultipleActions debug actions combos queue maxSize
-  executeGamePad debug keymap newCombos newQueue maxSize
+  when (null actions) $ executeGamePad debug keymap dfa queue maxSize
+  (newQueue, newDFA) <- handleMultipleActions debug actions dfa queue maxSize
+  executeGamePad debug keymap newDFA newQueue maxSize
 
 main :: IO ()
 main = do
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
-  (keymap, combos) <- parseFile (argFilename args)
+  (keymap, combos, dfa) <- parseFile (argFilename args)
   printInfo keymap combos (argGamepad args)
   when (argGamepad args) initGameContoller
   let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
-  executeFunc (argDebug args) keymap combos [] (maximum $ map comboLen combos)
+  let maxSize = maximum $ map (length . comboActions) combos
+  executeFunc (argDebug args) keymap dfa [] maxSize
