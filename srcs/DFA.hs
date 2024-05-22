@@ -5,7 +5,7 @@ import qualified Control.Applicative as Array
 import Control.Monad (when)
 import Data.Array (array)
 import qualified Data.Array as Array
-import Data.List (intercalate)
+import Data.List (intercalate, nub)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
 import qualified Data.Set as Set
@@ -75,7 +75,7 @@ data DFA = DFA
   }
 
 buildActions :: [Combo] -> Map.Map String Int
-buildActions combos = Map.empty
+buildActions combos = Map.fromList $ zip (nub $ concatMap comboActions combos) [0 ..]
 
 buildStates :: [Combo] -> Map.Map [String] Int
 buildStates combos = Map.empty
