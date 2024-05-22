@@ -2,7 +2,7 @@ module DFA (Combo (..), printCombos, printSuccessfulCombo, parseDFA) where
 
 import Colors (Color (..), colored, putColorful)
 import Control.Monad (when)
-import Data.Array (array)
+import Data.Array (listArray)
 import qualified Data.Array as Array
 import Data.List (intercalate, nub)
 import Data.List.Split (splitOn)
@@ -65,25 +65,46 @@ parseCombos (comboLine : comboLines) possibleActions cache = do
   combos <- parseCombos comboLines possibleActions (Set.insert comboIdentity cache)
   return (combo : combos)
 
+type DFAActions = Map.Map String Int
+type DFAStates = Map.Map [String] Int
+type DFATransitions = Array.Array Int (Array.Array Int Int)
+type DFAFinishingStates = Array.Array Int (Array.Array Int [Combo])
+
 data DFA = DFA
   { dfaMaxLen :: Int
-  , dfaActions :: Map.Map String Int
-  , dfaFinishingStates :: Array.Array Int (Array.Array Int [Combo])
-  , dfaTransitions :: Array.Array Int (Array.Array Int Int)
+  , dfaActions :: DFAActions
+  , dfaFinishingStates :: DFAFinishingStates
+  , dfaTransitions :: DFATransitions
   , dfaState :: Int
   }
 
-buildActions :: [Combo] -> Map.Map String Int
-buildActions combos = Map.fromList $ zip (nub $ concatMap comboActions combos) [0 ..]
+reverseIndex :: (Ord a) => [a] -> Map.Map a Int
+reverseIndex lst = Map.fromList $ zip (nub lst) [0 ..]
 
-buildStates :: [Combo] -> Map.Map [String] Int
-buildStates combos = Map.empty
+buildActions :: [Combo] -> DFAActions
+buildActions combos = reverseIndex $ concatMap comboActions combos
 
-buildFinishingStates :: [Combo] -> Map.Map [String] Int -> Array.Array Int (Array.Array Int [Combo])
-buildFinishingStates combos states = array (0, -1) []
+buildStates :: [Combo] -> DFAStates
+buildStates combos = reverseIndex $ concatMap ((\x -> map (`take` x) [0 .. length x]) . comboActions) combos
 
-buildTransitions :: [Combo] -> Map.Map [String] Int -> Map.Map String Int -> Array.Array Int (Array.Array Int Int)
-buildTransitions combos states actions = array (0, -1) []
+arrayFull :: Int -> Int -> a -> Array.Array Int (Array.Array Int a)
+arrayFull rows cols value = listArray (0, rows - 1) (replicate rows row)
+ where
+  row = listArray (0, cols - 1) (replicate cols value)
+
+buildFinishingStates :: [Combo] -> DFAStates -> DFAActions -> DFAFinishingStates
+buildFinishingStates combos states actions = do
+  let numStates = length states
+  let numActions = length actions
+  let finishingStates = arrayFull numStates numActions []
+  finishingStates
+
+buildTransitions :: [Combo] -> DFAStates -> DFAActions -> DFATransitions
+buildTransitions combos states actions = do
+  let numStates = length states
+  let numActions = length actions
+  let transitions = arrayFull numStates numActions 0
+  transitions
 
 buildDFA :: [Combo] -> DFA
 buildDFA combos = do
@@ -92,7 +113,7 @@ buildDFA combos = do
   DFA
     { dfaMaxLen = maximum (map (length . comboActions) combos)
     , dfaActions = actions
-    , dfaFinishingStates = buildFinishingStates combos states
+    , dfaFinishingStates = buildFinishingStates combos states actions
     , dfaTransitions = buildTransitions combos states actions
     , dfaState = 0
     }

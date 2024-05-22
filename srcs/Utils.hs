@@ -11,6 +11,7 @@ enqueue maxSize x xs = take maxSize (x : xs)
 isAsciiLetter :: Char -> Bool
 isAsciiLetter c = isAscii c && isAlpha c
 
+-- TODO: remove forall a.
 panic :: forall a. String -> IO a
 panic s = do
   putStrLn s
