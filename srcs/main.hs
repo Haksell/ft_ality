@@ -1,6 +1,6 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (comboActions), printCombos, printSuccessfulCombo)
+import Combo (Combo (..), printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
 import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
 import Data.List (intercalate)
@@ -19,32 +19,38 @@ printInfo keymap combos gamepad = do
 
 -- TODO: advanceQuiet, advanceDebug
 
-handleOneAction :: Bool -> String -> DFA -> [String] -> Int -> IO ([String], DFA)
-handleOneAction debug action dfa queue maxSize = do
+handleOneAction :: Bool -> String -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
+handleOneAction debug action combos dfa queue maxSize = do
   let newQueue = enqueue maxSize action queue
   putStrLn $ intercalate ", " (reverse newQueue)
   let (newDFA, finishedCombos) = advanceDFA dfa action
-  mapM_ printSuccessfulCombo finishedCombos
+  mapM_
+    ( \c ->
+        if c `elem` finishedCombos
+          then printSuccessfulCombo c
+          else when debug $ printUnsuccessfulCombo c
+    )
+    combos
   putStrLn ""
   return (newQueue, newDFA)
 
 -- TODO: verify it works the same as old recursion
-handleMultipleActions :: Bool -> [String] -> DFA -> [String] -> Int -> IO ([String], DFA)
-handleMultipleActions debug actions dfa queue maxSize =
-  foldM (\(q, d) action -> handleOneAction debug action d q maxSize) (queue, dfa) actions
+handleMultipleActions :: Bool -> [String] -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
+handleMultipleActions debug actions combos dfa queue maxSize =
+  foldM (\(q, d) action -> handleOneAction debug action combos d q maxSize) (queue, dfa) actions
 
-executeKeyboard :: Bool -> Keymap -> DFA -> [String] -> Int -> IO ()
-executeKeyboard debug keymap dfa queue maxSize = do
+executeKeyboard :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+executeKeyboard debug keymap combos dfa queue maxSize = do
   action <- getActionKeyboard keymap
-  (newQueue, newDFA) <- handleOneAction debug action dfa queue maxSize
-  executeKeyboard debug keymap newDFA newQueue maxSize
+  (newQueue, newDFA) <- handleOneAction debug action combos dfa queue maxSize
+  executeKeyboard debug keymap combos newDFA newQueue maxSize
 
-executeGamePad :: Bool -> Keymap -> DFA -> [String] -> Int -> IO ()
-executeGamePad debug keymap dfa queue maxSize = do
+executeGamePad :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+executeGamePad debug keymap combos dfa queue maxSize = do
   actions <- getActionGamepad keymap
-  when (null actions) $ executeGamePad debug keymap dfa queue maxSize
-  (newQueue, newDFA) <- handleMultipleActions debug actions dfa queue maxSize
-  executeGamePad debug keymap newDFA newQueue maxSize
+  when (null actions) $ executeGamePad debug keymap combos dfa queue maxSize
+  (newQueue, newDFA) <- handleMultipleActions debug actions combos dfa queue maxSize
+  executeGamePad debug keymap combos newDFA newQueue maxSize
 
 main :: IO ()
 main = do
@@ -56,4 +62,4 @@ main = do
   when (argGamepad args) initGameContoller
   let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
   let maxSize = maximum $ map (length . comboActions) combos
-  executeFunc (argDebug args) keymap dfa [] maxSize
+  executeFunc (argDebug args) keymap combos dfa [] maxSize

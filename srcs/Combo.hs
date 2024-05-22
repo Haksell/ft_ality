@@ -1,3 +1,5 @@
+{-# LANGUAGE InstanceSigs #-}
+
 module Combo (Combo (..), printCombos, printSuccessfulCombo, printUnsuccessfulCombo, parseCombos) where
 
 import Colors (Color (..), colored, putColorful)
@@ -13,6 +15,10 @@ data Combo = Combo
   , comboActions :: [String]
   , comboLen :: Int
   }
+
+instance Eq Combo where
+  (==) :: Combo -> Combo -> Bool
+  (==) c1 c2 = comboName c1 == comboName c2 && comboFighter c1 == comboFighter c2
 
 printInfoCombo :: Combo -> IO ()
 printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
