@@ -1,7 +1,6 @@
 module DFA (Combo (..), printCombos, printSuccessfulCombo, parseDFA) where
 
 import Colors (Color (..), colored, putColorful)
-import qualified Control.Applicative as Array
 import Control.Monad (when)
 import Data.Array (array)
 import qualified Data.Array as Array
