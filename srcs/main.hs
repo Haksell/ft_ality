@@ -1,6 +1,6 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (..), printCombos)
+import Combo (Combo (..))
 import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
 import Data.List (find, intercalate, isSuffixOf)
@@ -14,8 +14,12 @@ import Utils (enqueue, prefixes)
 printInfo :: Keymap -> [Combo] -> Bool -> IO ()
 printInfo keymap combos gamepad = do
   printKeymap keymap gamepad
-  printCombos combos
+  putColorful Green "=== COMBOS ==="
+  mapM_ printCombo combos
   putColorful Green (replicate 40 '=')
+ where
+  printCombo :: Combo -> IO ()
+  printCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
 
 handleOneAction :: Bool -> String -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleOneAction debug action combos dfa queue maxSize = do

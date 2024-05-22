@@ -1,6 +1,6 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Combo (Combo (..), printCombos, parseCombos) where
+module Combo (Combo (..), parseCombos) where
 
 import Colors (Color (..), colored, putColorful)
 import Control.Monad (when)
@@ -19,14 +19,6 @@ data Combo = Combo
 instance Eq Combo where
   (==) :: Combo -> Combo -> Bool
   (==) c1 c2 = comboName c1 == comboName c2 && comboFighter c1 == comboFighter c2
-
-printInfoCombo :: Combo -> IO ()
-printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
-
-printCombos :: [Combo] -> IO ()
-printCombos combos = do
-  putColorful Green "=== COMBOS ==="
-  mapM_ printInfoCombo combos
 
 parseCombo :: String -> Set.Set String -> IO Combo
 parseCombo comboLine possibleActions = do
