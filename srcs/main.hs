@@ -38,25 +38,21 @@ handleOneAction debug action combos dfa queue maxSize = do
 
   printUnsuccessfulCombo :: Combo -> IO ()
   printUnsuccessfulCombo combo = do
-    -- putStrLn "================"
-    -- print $ comboActions combo
-    -- print $ newQueue
-    -- putStrLn "================"
     putStrLn $
       comboFighter combo
         ++ ": "
         ++ comboName combo
         ++ ": "
-        ++ (show $ longestSuffixPrefix newQueue (comboActions combo))
+        ++ show (length $ longestSuffixPrefix $ comboActions combo)
         ++ "/"
         ++ show (comboLen combo)
 
-  longestSuffixPrefix :: (Eq a) => [a] -> [a] -> [a]
-  longestSuffixPrefix q actions = last $ filter (`isSuffixOf` q) (inits actions)
+  longestSuffixPrefix :: [String] -> [String]
+  longestSuffixPrefix actions = head $ filter (\p -> p `isSuffixOf` reverse newQueue) (prefixes actions)
 
-  inits :: [a] -> [[a]]
-  inits [] = [[]]
-  inits xs = inits (init xs) ++ [xs]
+  prefixes :: [a] -> [[a]]
+  prefixes [] = [[]]
+  prefixes xs = xs : prefixes (init xs)
 
 handleMultipleActions :: Bool -> [String] -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleMultipleActions debug actions combos dfa queue maxSize =
