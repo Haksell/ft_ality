@@ -96,8 +96,12 @@ buildFinishingStates :: [Combo] -> DFAStates -> DFAActions -> DFAFinishingStates
 buildFinishingStates combos states actions = do
   let numStates = length states
   let numActions = length actions
-  let finishingStates = arrayFull numStates numActions []
-  finishingStates
+  let empty = arrayFull numStates numActions []
+  foldl f empty combos
+ where
+  f finishingStates combo = do
+    let state = last $ comboActions combo
+    finishingStates
 
 buildTransitions :: [Combo] -> DFAStates -> DFAActions -> DFATransitions
 buildTransitions combos states actions = do
@@ -111,7 +115,7 @@ buildDFA combos = do
   let actions = buildActions combos
   let states = buildStates combos
   DFA
-    { dfaMaxLen = maximum (map (length . comboActions) combos)
+    { dfaMaxLen = maximum $ map (length . comboActions) combos
     , dfaActions = actions
     , dfaFinishingStates = buildFinishingStates combos states actions
     , dfaTransitions = buildTransitions combos states actions
