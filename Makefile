@@ -1,11 +1,13 @@
+FILE := grammars/valid/debug.gmr
+
 help:
 	@cabal run -v0 exe:ft_ality -- --help
 
 run:
-	@cabal run -v0 exe:ft_ality -- grammars/valid/debug.gmr
+	@cabal run -v0 exe:ft_ality -- $(FILE)
 
 debug:
-	@cabal run -v0 exe:ft_ality -- grammars/valid/debug.gmr --debug
+	@cabal run -v0 exe:ft_ality -- $(FILE) --debug
 
 install:
 	cabal update && cabal install --overwrite-policy=always
