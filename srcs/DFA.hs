@@ -32,7 +32,6 @@ arrayFull rows cols value = listArray (0, rows - 1) (replicate rows row)
  where
   row = listArray (0, cols - 1) (replicate cols value)
 
--- TODO: verify profusely
 buildFinishingStates :: [Combo] -> DFAStates -> DFAActions -> DFAFinishingStates
 buildFinishingStates combos states actions = do
   let empty = arrayFull (length states) (length actions) []
