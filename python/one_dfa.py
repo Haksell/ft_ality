@@ -73,7 +73,6 @@ class Combo:
     def __init__(self, line, possible_actions):
         actions, self.name, self.fighter = line.split("/")
         self.actions = tuple(actions.split(","))
-        # TODO: copy these checks in Haskell if we did not already
         assert len(self.actions) >= 1
         assert all(a != "" for a in self.actions)
         assert all(a in possible_actions for a in self.actions)
