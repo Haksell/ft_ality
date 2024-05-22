@@ -1,7 +1,7 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (comboActions), printCombos, printSuccessfulCombo, printUnsuccessfulCombo)
-import Control.Monad (when)
+import Combo (Combo (comboActions), printCombos, printSuccessfulCombo)
+import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
 import Data.List (intercalate)
 import Gamepad (getActionGamepad, initGameContoller)
@@ -38,11 +38,10 @@ handleOneAction debug action dfa queue maxSize = do
   putStrLn ""
   return (newQueue, newDFA)
 
+-- TODO: verify it works the same as old recursion
 handleMultipleActions :: Bool -> [String] -> DFA -> [String] -> Int -> IO ([String], DFA)
-handleMultipleActions _ [] combos queue _ = return (queue, combos)
-handleMultipleActions debug (action : newActions) combos queue maxSize = do
-  (newQueue, newDFA) <- handleOneAction debug action combos queue maxSize
-  handleMultipleActions debug newActions newDFA newQueue maxSize
+handleMultipleActions debug actions dfa queue maxSize =
+  foldM (\(q, d) action -> handleOneAction debug action d q maxSize) (queue, dfa) actions
 
 executeKeyboard :: Bool -> Keymap -> DFA -> [String] -> Int -> IO ()
 executeKeyboard debug keymap dfa queue maxSize = do
