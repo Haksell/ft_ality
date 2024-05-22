@@ -1,33 +1,21 @@
-module DFA (Combo (..), advanceCombo, printCombos, printSuccessfulCombo, printUnsuccessfulCombo, parseDFA) where
+module DFA (Combo (..), printCombos, printSuccessfulCombo, parseDFA) where
 
 import Colors (Color (..), colored, putColorful)
-import Data.Function (on)
-import Data.List (find, intercalate, nub, sortBy)
+import Control.Monad (unless, when)
+import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import qualified Data.Map as Map
-import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
-import Utils (panic, uncurry3)
-
-type DFA = [Map.Map String Int]
+import Utils (panic)
 
 -- COMBO SECTION START (TODO: Combo.hs)
 
 data Combo = Combo
-  { comboLen :: Int
-  , comboActions :: [String]
-  , comboName :: String
+  { comboName :: String
   , comboFighter :: String
-  , comboState :: Int
-  , comboDFA :: DFA
+  , comboActions :: [String]
+  , comboLen :: Int
   }
-
-advanceCombo :: Combo -> String -> (Bool, Combo)
-advanceCombo combo action = do
-  let mapping = comboDFA combo !! comboState combo
-  let newState = fromMaybe 0 (Map.lookup action mapping)
-  let isComplete = newState == comboLen combo
-  (isComplete, combo{comboState = if isComplete then 0 else newState})
 
 printInfoCombo :: Combo -> IO ()
 printInfoCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
@@ -40,68 +28,52 @@ printCombos combos = do
 printSuccessfulCombo :: Combo -> IO ()
 printSuccessfulCombo combo = putStrLn $ comboFighter combo ++ " uses " ++ comboName combo ++ " !!"
 
-printUnsuccessfulCombo :: Combo -> IO ()
-printUnsuccessfulCombo combo =
-  putStrLn $
-    comboFighter combo
-      ++ ": "
-      ++ comboName combo
-      ++ ": "
-      ++ show (comboState combo)
-      ++ "/"
-      ++ show (comboLen combo)
-
 -- COMBO SECTION END
+
+data DFA = DFA
+  { dfaMaxLen :: Int
+  , dfaActions :: Map.Map String Int
+  }
 
 type ComboCache = Set.Set (String, String)
 
-findPositionDFA :: Int -> [String] -> String -> Int
-findPositionDFA i actions action = do
-  let sublist j = take (j - 1) (drop (i - j + 1) actions) ++ [action]
-  let bestFind = find (\j -> sublist j == take j actions) [i + 1, i .. 1]
-  fromMaybe 0 bestFind
-
-buildState :: Int -> [String] -> [String] -> Map.Map String Int
-buildState i actions uniqueActions = Map.fromList (map (\a -> (a, findPositionDFA i actions a)) uniqueActions)
-
-buildDFA :: [String] -> [Map.Map String Int]
-buildDFA actions = do
-  let uniqueActions = nub actions
-  map (uncurry3 buildState) $ zip3 [0 .. length actions - 1] (repeat actions) (repeat uniqueActions)
-
--- TODO: maybe handle action not in keymap
-newCombo :: [String] -> String -> String -> Combo
-newCombo actions name fighter =
-  Combo
-    { comboLen = length actions
-    , comboActions = actions
-    , comboName = colored Blue name
-    , comboFighter = colored Red fighter
-    , comboState = 0
-    , comboDFA = buildDFA actions
-    }
-
-parseCombo :: String -> ComboCache -> IO (Combo, ComboCache)
-parseCombo comboLine comboCache = do
+-- TODO: only return Combo
+parseCombo :: String -> Set.Set String -> ComboCache -> IO (ComboCache, Combo)
+parseCombo comboLine possibleActions cache = do
   let parts = splitOn "/" comboLine
   case parts of
-    [actions, name, fighter] ->
-      if Set.member (name, fighter) comboCache
-        then panic $ "Duplicate combo: " ++ name ++ "(" ++ fighter ++ ")"
-        else
-          return
-            ( newCombo (splitOn "," actions) name fighter
-            , Set.insert (name, fighter) comboCache
-            )
-    _ -> panic "Combo line should be in the following format: moves/name/fighter"
+    [actionsStr, name, fighter] -> do
+      let actions = splitOn "," actionsStr
+      let representation = name ++ " (" ++ fighter ++ ")"
+      when (null actions) $ panic ("No actions for combo " ++ representation)
+      when ("" `elem` actions) $ panic ("Empty action for combo " ++ representation)
+      when (any (`Set.notMember` possibleActions) actions) $
+        panic ("Unknown action for combo " ++ representation) -- TODO: say which one
+      let comboIdentity = (name, fighter)
+      when (Set.member comboIdentity cache) $ panic ("Duplicate combo: " ++ representation)
+      return
+        ( Set.insert comboIdentity cache
+        , Combo
+            { comboName = colored Blue name
+            , comboFighter = colored Red fighter
+            , comboActions = actions
+            , comboLen = length actions
+            }
+        )
+    _ -> panic "Combo line should be in the following format: actions/name/fighter"
 
-parseDFA' :: [String] -> [Combo] -> ComboCache -> IO [Combo]
-parseDFA' [] prevCombos _ = return prevCombos
-parseDFA' (comboLine : comboLines) prevCombos comboCache = do
-  (combo, newComboCache) <- parseCombo comboLine comboCache
-  parseDFA' comboLines (combo : prevCombos) newComboCache
+parseCombos :: [String] -> Set.Set String -> ComboCache -> IO [Combo]
+parseCombos [] _ _ = return []
+parseCombos (comboLine : comboLines) possibleActions cache = do
+  (newCache, combo) <- parseCombo comboLine possibleActions cache
+  combos <- parseCombos comboLines possibleActions newCache
+  return (combo : combos)
 
-parseDFA :: [String] -> Set.Set String -> IO [Combo]
-parseDFA comboLines _ = do
-  combos <- parseDFA' comboLines [] Set.empty
-  return $ sortBy (compare `on` (\c -> (comboFighter c, comboName c))) combos
+parseDFA :: [String] -> Set.Set String -> IO DFA
+parseDFA comboLines possibleActions = do
+  combos <- parseCombos comboLines possibleActions Set.empty
+  return $
+    DFA
+      { dfaMaxLen = 0
+      , dfaActions = Map.empty
+      }
