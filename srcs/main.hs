@@ -3,12 +3,12 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..))
-import Control.Monad (unless, when)
+import Control.Monad (when)
 import DFA (DFA, advanceDFA)
-import Data.Char (toUpper)
 import Data.List (find, intercalate, isSuffixOf)
 import qualified Data.Map as Map
-import Data.Maybe (mapMaybe)
+import Data.Maybe (fromJust, mapMaybe)
+import GHC.Char (chr)
 import Gamepad (getActionGamepad, initGamepad)
 import Keyboard (getActionKeyboard, initKeyboard)
 import Keymap (Keymap, printKeymap)
@@ -67,24 +67,24 @@ handleAction debug action combos dfa queue maxSize = do
 type GameLoop = Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
 
 loopTerminal :: GameLoop
-loopTerminal debug _renderer keymap combos dfa queue maxSize = do
+loopTerminal debug _ keymap combos dfa queue maxSize = do
   action <- getActionKeyboard keymap
   case action of
     Nothing -> return ()
     Just a -> do
       (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
-      loopTerminal debug _renderer keymap combos newDFA newQueue maxSize
+      loopTerminal debug Nothing keymap combos newDFA newQueue maxSize
 
 loopGamepad :: GameLoop
-loopGamepad debug renderer keymap combos dfa queue maxSize = do
+loopGamepad debug _todo keymap combos dfa queue maxSize = do
   action <- getActionGamepad keymap
   case action of
     Nothing -> return ()
     Just a -> do
       (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
-      loopGamepad debug renderer keymap combos newDFA newQueue maxSize
+      loopGamepad debug _todo keymap combos newDFA newQueue maxSize
 
-getActionGUI :: Keymap -> IO String
+getActionGUI :: Keymap -> IO (Maybe String)
 getActionGUI keymap = do
   events <- SDL.pollEvents
   let keyPresses =
@@ -92,22 +92,49 @@ getActionGUI keymap = do
         | SDL.KeyboardEvent e <- map SDL.eventPayload events
         , SDL.keyboardEventKeyMotion e == SDL.Pressed
         ]
-  unless (null keyPresses) (print keyPresses)
-  case mapMaybe getActionFromKey keyPresses of
-    [] -> getActionGUI keymap
-    (action : _) -> return action
+  if any isQuitEvent events
+    then return Nothing
+    else case mapMaybe getActionFromKey keyPresses of
+      [] -> getActionGUI keymap
+      (action : _) -> return $ Just action
  where
+  getKeyPress :: SDL.KeyboardEventData -> SDL.Keycode
+  getKeyPress keyboardEvent = SDL.keysymKeycode $ SDL.keyboardEventKeysym keyboardEvent
+
+  isQuitEvent :: SDL.Event -> Bool
+  isQuitEvent event =
+    case SDL.eventPayload event of
+      SDL.QuitEvent -> True
+      SDL.WindowClosedEvent _ -> True
+      SDL.KeyboardEvent keyboardEvent ->
+        case SDL.keyboardEventKeyMotion keyboardEvent of
+          SDL.Pressed -> getKeyPress keyboardEvent == SDL.KeycodeEscape
+          SDL.Released -> False
+      _ -> False
+
   getActionFromKey :: SDL.KeyboardEventData -> Maybe String
-  getActionFromKey keyPress =
-    Map.lookup
-      (map toUpper $ show $ SDL.keysymKeycode $ SDL.keyboardEventKeysym keyPress)
-      keymap
+  getActionFromKey keyPress = do
+    let code = SDL.unwrapKeycode $ SDL.keysymKeycode $ SDL.keyboardEventKeysym keyPress
+    case code of
+      1073741903 -> Map.lookup "RIGHT" keymap
+      1073741904 -> Map.lookup "LEFT" keymap
+      1073741905 -> Map.lookup "DOWN" keymap
+      1073741906 -> Map.lookup "UP" keymap
+      c | 97 <= c && c <= 122 -> Map.lookup [chr (fromIntegral c - 32)] keymap
+      _ -> Nothing
 
 loopGUI :: GameLoop
 loopGUI debug renderer keymap combos dfa queue maxSize = do
   action <- getActionGUI keymap
-  (newQueue, newDFA) <- handleAction debug action combos dfa queue maxSize
-  loopGUI debug renderer keymap combos newDFA newQueue maxSize
+  case action of
+    Nothing -> return ()
+    Just a -> do
+      let justRenderer = fromJust renderer
+      SDL.rendererDrawColor justRenderer SDL.$= SDL.V4 255 0 0 255
+      SDL.clear justRenderer
+      SDL.present justRenderer
+      (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
+      loopGUI debug renderer keymap combos newDFA newQueue maxSize
 
 main :: IO ()
 main = do
