@@ -4,7 +4,7 @@ import Combo (Combo (..))
 import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
 import Data.List (find, intercalate, isSuffixOf)
-import Gamepad (getActionGamepad, initGameContoller)
+import Gamepad (getActionGamepad, initGamepad)
 import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
@@ -79,9 +79,9 @@ main = do
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
+  when (argGamepad args) initGamepad
   (keymap, combos, dfa) <- parseFile (argFilename args)
   printInfo keymap combos (argGamepad args)
-  when (argGamepad args) initGameContoller
   let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
   let maxSize = maximum $ map (length . comboActions) combos
   executeFunc (argDebug args) keymap combos dfa [] maxSize

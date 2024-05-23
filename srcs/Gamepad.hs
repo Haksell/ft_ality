@@ -1,4 +1,4 @@
-module Gamepad (initGameContoller, getActionGamepad) where
+module Gamepad (initGamepad, getActionGamepad) where
 
 import Control.Monad (void)
 import Data.Char (toUpper)
@@ -6,35 +6,31 @@ import qualified Data.Map as Map
 import Data.Maybe (catMaybes)
 import qualified Data.Vector as V -- TODO: directly SDL vector?
 import Keymap (Keymap)
-import SDL (
-  ControllerButtonEventData (controllerButtonEventButton, controllerButtonEventState),
-  Event (eventPayload),
-  EventPayload (ControllerButtonEvent),
-  InitFlag (InitGameController),
-  initialize,
-  pollEvents,
- )
-import SDL.Input.GameController (
-  ControllerButtonState (ControllerButtonPressed),
-  availableControllers,
-  openController,
- )
+import qualified SDL
+import qualified SDL.Input.GameController as Controller
 import Utils (panic)
 
-initGameContoller :: IO ()
-initGameContoller = do
+initGamepad :: IO ()
+initGamepad = do
   SDL.initialize [SDL.InitGameController]
-  controllers <- availableControllers
+  controllers <- Controller.availableControllers
   if V.null controllers
     then panic "No game controllers connected!"
-    else void (openController (V.head controllers))
+    else void (Controller.openController (V.head controllers))
 
 getActionGamepad :: Keymap -> IO [String]
 getActionGamepad keymap = do
   events <- SDL.pollEvents
-  let buttonPresses = [e | SDL.ControllerButtonEvent e <- map SDL.eventPayload events, SDL.controllerButtonEventState e == ControllerButtonPressed]
-  let actions = map (`getActionFromButton` keymap) buttonPresses
+  let buttonPresses =
+        [ e
+        | SDL.ControllerButtonEvent e <- map SDL.eventPayload events
+        , SDL.controllerButtonEventState e == Controller.ControllerButtonPressed
+        ]
+  let actions = map getActionFromButton buttonPresses
   return $ catMaybes actions
-
-getActionFromButton :: ControllerButtonEventData -> Keymap -> Maybe String
-getActionFromButton buttonPress = Map.lookup (map toUpper $ show $ SDL.controllerButtonEventButton buttonPress)
+ where
+  getActionFromButton :: SDL.ControllerButtonEventData -> Maybe String
+  getActionFromButton buttonPress =
+    Map.lookup
+      (map toUpper $ show $ SDL.controllerButtonEventButton buttonPress)
+      keymap
