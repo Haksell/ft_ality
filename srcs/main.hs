@@ -64,23 +64,25 @@ handleAction debug action combos dfa queue maxSize = do
 
 -- TODO: refactor 3 execute functions
 
-executeTerminal :: Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
-executeTerminal debug renderer keymap combos dfa queue maxSize = do
+type GameLoop = Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+
+loopTerminal :: GameLoop
+loopTerminal debug _renderer keymap combos dfa queue maxSize = do
   action <- getActionKeyboard keymap
   case action of
     Nothing -> return ()
     Just a -> do
       (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
-      executeTerminal debug renderer keymap combos newDFA newQueue maxSize
+      loopTerminal debug _renderer keymap combos newDFA newQueue maxSize
 
-executeGamepad :: Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
-executeGamepad debug renderer keymap combos dfa queue maxSize = do
+loopGamepad :: GameLoop
+loopGamepad debug renderer keymap combos dfa queue maxSize = do
   action <- getActionGamepad keymap
   case action of
     Nothing -> return ()
     Just a -> do
       (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
-      executeGamepad debug renderer keymap combos newDFA newQueue maxSize
+      loopGamepad debug renderer keymap combos newDFA newQueue maxSize
 
 getActionGUI :: Keymap -> IO String
 getActionGUI keymap = do
@@ -101,11 +103,11 @@ getActionGUI keymap = do
       (map toUpper $ show $ SDL.keysymKeycode $ SDL.keyboardEventKeysym keyPress)
       keymap
 
-executeGUI :: Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
-executeGUI debug renderer keymap combos dfa queue maxSize = do
+loopGUI :: GameLoop
+loopGUI debug renderer keymap combos dfa queue maxSize = do
   action <- getActionGUI keymap
   (newQueue, newDFA) <- handleAction debug action combos dfa queue maxSize
-  executeGUI debug renderer keymap combos newDFA newQueue maxSize
+  loopGUI debug renderer keymap combos newDFA newQueue maxSize
 
 main :: IO ()
 main = do
@@ -119,9 +121,9 @@ main = do
     then do
       window <- SDL.createWindow "ft_ality" SDL.defaultWindow{SDL.windowInitialSize = SDL.V2 800 800}
       renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
-      let executeFunc = if argGamepad args then executeGamepad else executeGUI
-      executeFunc (argDebug args) (Just renderer) keymap combos dfa [] maxSize
+      let gameLoop = if argGamepad args then loopGamepad else loopGUI
+      gameLoop (argDebug args) (Just renderer) keymap combos dfa [] maxSize
       SDL.destroyWindow window
     else do
-      let executeFunc = if argGamepad args then executeGamepad else executeTerminal
-      executeFunc (argDebug args) Nothing keymap combos dfa [] maxSize
+      let gameLoop = if argGamepad args then loopGamepad else loopTerminal
+      gameLoop (argDebug args) Nothing keymap combos dfa [] maxSize
