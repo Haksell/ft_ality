@@ -2,7 +2,10 @@
 
 ## TODO
 
--   [ ] `--mode=normal|debug|gui` with normal as default
+-   [ ] `--gui` arg
+-   [ ] window that updates on actions
+-   [ ] window that prints last action
+-   [ ] `GUI.hs`
 -   [ ] gui
 -   [ ] check parsing
 -   [ ] simple tester (even just `make valid` and `make invalid`)

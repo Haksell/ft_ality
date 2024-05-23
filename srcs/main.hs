@@ -5,11 +5,10 @@ import Control.Monad (foldM, when)
 import DFA (DFA, advanceDFA)
 import Data.List (find, intercalate, isSuffixOf)
 import Gamepad (getActionGamepad, initGamepad)
-import Keyboard (getActionKeyboard)
+import Keyboard (getActionKeyboard, initKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import qualified SDL
-import System.IO (BufferMode (NoBuffering), hSetBuffering, hSetEcho, stdin)
 import Utils (enqueue, prefixes)
 
 printInfo :: Keymap -> [Combo] -> Bool -> IO ()
@@ -68,6 +67,12 @@ executeKeyboard debug keymap combos dfa queue maxSize = do
   (newQueue, newDFA) <- handleOneAction debug action combos dfa queue maxSize
   executeKeyboard debug keymap combos newDFA newQueue maxSize
 
+executeGUI :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+executeGUI debug keymap combos dfa queue maxSize = do
+  action <- getActionKeyboard keymap
+  (newQueue, newDFA) <- handleOneAction debug action combos dfa queue maxSize
+  executeKeyboard debug keymap combos newDFA newQueue maxSize
+
 executeGamepad :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
 executeGamepad debug keymap combos dfa queue maxSize = do
   actions <- getActionGamepad keymap
@@ -75,15 +80,21 @@ executeGamepad debug keymap combos dfa queue maxSize = do
   (newQueue, newDFA) <- handleMultipleActions debug actions combos dfa queue maxSize
   executeGamepad debug keymap combos newDFA newQueue maxSize
 
+initGUI :: IO ()
+initGUI = do
+  initKeyboard -- TODO: remove
+
 main :: IO ()
 main = do
   SDL.initializeAll
-  hSetEcho stdin False
-  hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs
+  if argGUI args then initGUI else initKeyboard
   when (argGamepad args) initGamepad
   (keymap, combos, dfa) <- parseFile (argFilename args)
   printInfo keymap combos (argGamepad args)
-  let executeFunc = if argGamepad args then executeGamepad else executeKeyboard
+  let executeFunc
+        | argGUI args = executeGUI
+        | argGamepad args = executeGamepad
+        | otherwise = executeKeyboard
   let maxSize = maximum $ map (length . comboActions) combos
   executeFunc (argDebug args) keymap combos dfa [] maxSize
