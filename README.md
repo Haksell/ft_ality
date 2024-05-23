@@ -2,11 +2,8 @@
 
 ## TODO
 
--   [ ] `--gui` arg
--   [ ] window that updates on actions
--   [ ] window that prints last action
--   [ ] `GUI.hs`
 -   [ ] gui
+-   [ ] `GUI.hs`
 -   [ ] check parsing
 -   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] the inputs should always be processed line by line
