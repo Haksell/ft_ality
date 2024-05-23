@@ -19,20 +19,23 @@ getKeyPress = reverse <$> getKeyPress' ""
     more <- System.IO.hReady System.IO.stdin
     (if more then getKeyPress' else return) (char : chars)
 
-getActionKeyboard :: Keymap -> IO String
+getActionKeyboard :: Keymap -> IO (Maybe String)
 getActionKeyboard keymap = do
   key <- getKey
-  case Map.lookup key keymap of
-    Just action -> return action
-    Nothing -> getActionKeyboard keymap
+  case key of
+    Nothing -> return Nothing
+    Just k -> case Map.lookup k keymap of
+      Just action -> return (Just action)
+      Nothing -> getActionKeyboard keymap
  where
-  getKey :: IO String
+  getKey :: IO (Maybe String)
   getKey = do
     chars <- getKeyPress
     case chars of
-      "\ESC[A" -> return "UP"
-      "\ESC[B" -> return "DOWN"
-      "\ESC[C" -> return "RIGHT"
-      "\ESC[D" -> return "LEFT"
-      [c] | isAsciiLetter c -> return [toUpper c]
+      "\ESC" -> return Nothing
+      "\ESC[A" -> return (Just "UP")
+      "\ESC[B" -> return (Just "DOWN")
+      "\ESC[C" -> return (Just "RIGHT")
+      "\ESC[D" -> return (Just "LEFT")
+      [c] | isAsciiLetter c -> return (Just [toUpper c])
       _ -> getKey

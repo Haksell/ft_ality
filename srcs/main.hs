@@ -3,7 +3,7 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
 import Combo (Combo (..))
-import Control.Monad (foldM, unless, void, when)
+import Control.Monad (foldM, forM_, when)
 import DFA (DFA, advanceDFA)
 import Data.Char (toUpper)
 import Data.List (find, intercalate, isSuffixOf)
@@ -69,8 +69,11 @@ handleMultipleActions debug actions combos dfa queue maxSize =
 executeTerminal :: Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
 executeTerminal debug renderer keymap combos dfa queue maxSize = do
   action <- getActionKeyboard keymap
-  (newQueue, newDFA) <- handleOneAction debug action combos dfa queue maxSize
-  executeTerminal debug renderer keymap combos newDFA newQueue maxSize
+  case action of
+    Nothing -> return ()
+    Just a -> do
+      (newQueue, newDFA) <- handleOneAction debug a combos dfa queue maxSize
+      executeTerminal debug renderer keymap combos newDFA newQueue maxSize
 
 executeGamepad :: Bool -> Maybe SDL.Renderer -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
 executeGamepad debug renderer keymap combos dfa queue maxSize = do
@@ -78,10 +81,22 @@ executeGamepad debug renderer keymap combos dfa queue maxSize = do
   (newQueue, newDFA) <- handleMultipleActions debug actions combos dfa queue maxSize
   executeGamepad debug renderer keymap combos newDFA newQueue maxSize
 
+getKeyPress :: SDL.KeyboardEventData -> SDL.Keycode
+getKeyPress keyboardEvent = SDL.keysymKeycode $ SDL.keyboardEventKeysym keyboardEvent
+
+printKeyPress :: SDL.Event -> IO ()
+printKeyPress event =
+  case SDL.eventPayload event of
+    SDL.KeyboardEvent keyboardEvent ->
+      when
+        (SDL.keyboardEventKeyMotion keyboardEvent == SDL.Pressed)
+        (putStrLn $ "Key Pressed: " ++ show (getKeyPress keyboardEvent))
+    _ -> return ()
+
 getActionGUI :: Keymap -> IO [String]
 getActionGUI keymap = do
   events <- SDL.pollEvents
-  -- unless (null events) $ print events
+  forM_ events printKeyPress
   let keyPresses =
         [ e
         | SDL.KeyboardEvent e <- map SDL.eventPayload events
@@ -116,6 +131,7 @@ main = do
       renderer <- SDL.createRenderer window (-1) SDL.defaultRenderer
       let executeFunc = if argGamepad args then executeGamepad else executeGUI
       executeFunc (argDebug args) (Just renderer) keymap combos dfa [] maxSize
+      SDL.destroyWindow window
     else do
       let executeFunc = if argGamepad args then executeGamepad else executeTerminal
       executeFunc (argDebug args) Nothing keymap combos dfa [] maxSize
