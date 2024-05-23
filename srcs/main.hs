@@ -68,12 +68,12 @@ executeKeyboard debug keymap combos dfa queue maxSize = do
   (newQueue, newDFA) <- handleOneAction debug action combos dfa queue maxSize
   executeKeyboard debug keymap combos newDFA newQueue maxSize
 
-executeGamePad :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
-executeGamePad debug keymap combos dfa queue maxSize = do
+executeGamepad :: Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+executeGamepad debug keymap combos dfa queue maxSize = do
   actions <- getActionGamepad keymap
-  when (null actions) $ executeGamePad debug keymap combos dfa queue maxSize
+  when (null actions) $ executeGamepad debug keymap combos dfa queue maxSize
   (newQueue, newDFA) <- handleMultipleActions debug actions combos dfa queue maxSize
-  executeGamePad debug keymap combos newDFA newQueue maxSize
+  executeGamepad debug keymap combos newDFA newQueue maxSize
 
 main :: IO ()
 main = do
@@ -84,6 +84,6 @@ main = do
   when (argGamepad args) initGamepad
   (keymap, combos, dfa) <- parseFile (argFilename args)
   printInfo keymap combos (argGamepad args)
-  let executeFunc = if argGamepad args then executeGamePad else executeKeyboard
+  let executeFunc = if argGamepad args then executeGamepad else executeKeyboard
   let maxSize = maximum $ map (length . comboActions) combos
   executeFunc (argDebug args) keymap combos dfa [] maxSize
