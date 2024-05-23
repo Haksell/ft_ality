@@ -1,17 +1,24 @@
 RUN := cabal run -v0 exe:ft_ality --
-FILE := grammars/valid/debug.gmr
+KEYBOARD_FILE := grammars/valid/debug.gmr
+GAMEPAD_FILE := grammars/valid/debugamepad.gmr
 
 help:
 	@$(RUN) --help
 
 run:
-	@$(RUN) $(FILE)
+	@$(RUN) $(KEYBOARD_FILE)
+
+gamepad:
+	@$(RUN) $(GAMEPAD_FILE) --gamepad
+
+gamepadebug:
+	@$(RUN) $(GAMEPAD_FILE) --gamepad --debug
 
 debug:
-	@$(RUN) $(FILE) --debug
+	@$(RUN) $(KEYBOARD_FILE) --debug
 
 gui:
-	@$(RUN) $(FILE) --gui
+	@$(RUN) $(KEYBOARD_FILE) --gui
 
 install:
 	cabal update && cabal install --overwrite-policy=always
@@ -21,3 +28,5 @@ clean:
 
 loc:
 	@find srcs -name '*.hs' | sort | xargs wc -l
+
+.PHONY: help run gamepad debug gui install clean loc
