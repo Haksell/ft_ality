@@ -8,6 +8,7 @@ import Gamepad (getActionGamepad, initGamepad)
 import Keyboard (getActionKeyboard)
 import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
+import qualified SDL
 import System.IO (BufferMode (NoBuffering), hSetBuffering, hSetEcho, stdin)
 import Utils (enqueue, prefixes)
 
@@ -76,6 +77,7 @@ executeGamePad debug keymap combos dfa queue maxSize = do
 
 main :: IO ()
 main = do
+  SDL.initializeAll
   hSetEcho stdin False
   hSetBuffering stdin NoBuffering
   args <- parseAndValidateArgs

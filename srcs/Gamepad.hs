@@ -12,7 +12,7 @@ import Utils (panic)
 
 initGamepad :: IO ()
 initGamepad = do
-  SDL.initialize [SDL.InitGameController]
+  SDL.initialize [SDL.InitGameController] -- TODO: remove since SDL.initializeAll already done?
   controllers <- Controller.availableControllers
   if V.null controllers
     then panic "No game controllers connected!"
