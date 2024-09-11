@@ -51,12 +51,9 @@ handleAction debug action combos dfa queue maxSize = do
             (find (`isSuffixOf` revQueue) (prefixes $ comboActions combo))
     putStrLn $
       comboFighter combo
-        ++ ": "
-        ++ comboName combo
-        ++ ": "
-        ++ show comboState
-        ++ "/"
-        ++ show (comboLen combo)
+        ++ ": " ++ comboName combo
+        ++ ": " ++ show comboState
+        ++ "/" ++ show (comboLen combo)
 
 type GetAction = Keymap -> IO (Maybe String)
 

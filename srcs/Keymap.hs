@@ -51,10 +51,8 @@ validButtons =
 checkKey :: String -> IO String
 checkKey k =
   if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys || k `elem` validButtons
-    then
-      return k
-    else
-      panic $ "Invalid key: " ++ k
+    then return k
+    else panic $ "Invalid key: " ++ k
 
 parseMapping :: String -> IO (String, String)
 parseMapping keymapLine = do

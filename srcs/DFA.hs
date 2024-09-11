@@ -2,9 +2,9 @@ module DFA (DFA, advanceDFA, buildDFA) where
 
 import Combo (Combo (..))
 import qualified Data.Array as Array
-import Data.List (isSuffixOf, nub)
+import Data.List (isSuffixOf)
 import qualified Data.Map as Map
-import Utils (arrayFull)
+import Utils (arrayFull, reverseIndex)
 
 type DFAActions = Map.Map String Int
 type DFAStates = Map.Map [String] Int
@@ -17,9 +17,6 @@ data DFA = DFA
   , dfaFinishingStates :: DFAFinishingStates
   , dfaTransitions :: DFATransitions
   }
-
-reverseIndex :: (Ord a) => [a] -> Map.Map a Int
-reverseIndex lst = Map.fromList $ zip (nub lst) [0 ..]
 
 buildActions :: [Combo] -> DFAActions
 buildActions combos = reverseIndex $ concatMap comboActions combos
