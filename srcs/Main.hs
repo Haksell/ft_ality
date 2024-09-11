@@ -75,7 +75,7 @@ main = do
   (keymap, combos, dfa) <- parseFile (argFilename args)
   printInfo keymap combos (argGamepad args)
   if argGamepad args then initGamepad else initKeyboard
-  let maxSize = maximum $ map (length . comboActions) combos
   let getAction = if argGamepad args then getActionGamepad else getActionKeyboard
   let debug = argDebug args
+  let maxSize = maximum $ map (length . comboActions) combos
   gameLoop getAction debug keymap combos dfa [] maxSize
