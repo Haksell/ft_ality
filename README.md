@@ -2,13 +2,11 @@
 
 ## TODO
 
--   [ ] check parsing
--   [ ] simple tester (even just `make valid` and `make invalid`)
 -   [ ] all recursion is tail-recursive
 -   [ ] no function bigger than 20 lines
 -   [ ] no utility functions at the module level, everything is nested
--   [ ] modules (should not export unnecessary functions)
--   [ ] no exceptions
+
+-   [ ] `parseCombos` is problematic
 
 ## Resources
 

@@ -4,7 +4,7 @@ import Control.Monad (void)
 import Data.Char (toUpper)
 import qualified Data.Map as Map
 import Data.Maybe (mapMaybe)
-import qualified Data.Vector as V -- TODO: directly SDL vector?
+import qualified Data.Vector as V
 import Keymap (Keymap)
 import SDL (ControllerButtonEventData (..))
 import qualified SDL
@@ -13,7 +13,7 @@ import Utils (panic)
 
 initGamepad :: IO ()
 initGamepad = do
-  SDL.initialize [SDL.InitGameController] -- TODO: remove since SDL.initializeAll already done?
+  SDL.initialize [SDL.InitGameController]
   controllers <- Controller.availableControllers
   if V.null controllers
     then panic "No game controllers connected!"
