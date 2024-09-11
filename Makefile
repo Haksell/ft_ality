@@ -10,8 +10,6 @@ run:
 debug:
 	@$(RUN) $(FILE) --debug
 
- # TODO: make gui
-
 install:
 	cabal update && cabal install --overwrite-policy=always
 

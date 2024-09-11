@@ -10,7 +10,7 @@ common warnings
 
 executable ft_ality
   import:           warnings
-  main-is:          main.hs
+  main-is:          Main.hs
   other-modules:
     Args
     Colors
