@@ -1,6 +1,6 @@
 RUN := cabal run -v0 exe:ft_ality --
-KEYBOARD_FILE := grammars/valid/debug.gmr
-GAMEPAD_FILE := grammars/valid/debugamepad.gmr
+KEYBOARD_FILE ?= grammars/valid/debug.gmr
+GAMEPAD_FILE ?= grammars/valid/debugamepad.gmr
 
 help:
 	@$(RUN) --help
