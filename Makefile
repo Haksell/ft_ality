@@ -14,7 +14,7 @@ debug:
 gamepad:
 	@$(RUN) $(GAMEPAD_FILE) --gamepad
 
-gamepadebug:
+debugamepad:
 	@$(RUN) $(GAMEPAD_FILE) --gamepad --debug
 
 install:
@@ -26,4 +26,4 @@ clean:
 loc:
 	@find srcs -name '*.hs' | sort | xargs wc -l
 
-.PHONY: help run debug gamepad gamepadebug install clean loc
+.PHONY: help run debug gamepad debugamepad install clean loc

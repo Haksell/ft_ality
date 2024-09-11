@@ -26,7 +26,6 @@ data Args = Args
   { argFilename :: FilePath
   , argDebug :: Bool
   , argGamepad :: Bool
-  , argGUI :: Bool
   }
 
 parseArgs :: Parser Args
@@ -35,7 +34,6 @@ parseArgs =
     <$> argument str (metavar ("grammar" ++ grammarExtension) <> help "Description of the keymap and combos")
     <*> switch (long "debug" <> help "Debug mode")
     <*> switch (long "gamepad" <> help "Enter combos using a gamepad")
-    <*> switch (long "gui" <> help "Visual representation of the DFA")
 
 validateArgs :: Args -> IO Args
 validateArgs args =
