@@ -8,17 +8,14 @@ help:
 run:
 	@$(RUN) $(KEYBOARD_FILE)
 
+debug:
+	@$(RUN) $(KEYBOARD_FILE) --debug
+
 gamepad:
 	@$(RUN) $(GAMEPAD_FILE) --gamepad
 
 gamepadebug:
 	@$(RUN) $(GAMEPAD_FILE) --gamepad --debug
-
-debug:
-	@$(RUN) $(KEYBOARD_FILE) --debug
-
-gui:
-	@$(RUN) $(KEYBOARD_FILE) --gui
 
 install:
 	cabal update && cabal install --overwrite-policy=always
@@ -29,4 +26,4 @@ clean:
 loc:
 	@find srcs -name '*.hs' | sort | xargs wc -l
 
-.PHONY: help run gamepad debug gui install clean loc
+.PHONY: help run debug gamepad gamepadebug install clean loc
