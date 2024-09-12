@@ -1,6 +1,7 @@
 module Keymap (Keymap, parseKeymap, printKeymap, validKeys, validButtons) where
 
 import Colors (Color (..), putColorful)
+import Control.Monad (foldM)
 import Data.Char (toUpper)
 import Data.Function (on)
 import Data.List (sortBy)
@@ -45,15 +46,16 @@ parseKeymap keymapSection = do
       _ -> panic "Action line should be in the following format: key/action"
 
   buildKeymap :: [(String, String)] -> IO (Either Keymap String)
-  buildKeymap = buildKeymap' Map.empty
+  buildKeymap = foldM updateKeyMap (Left Map.empty)
 
-  buildKeymap' keymap [] = return $ Left keymap
-  buildKeymap' keymap ((k, a) : xs) =
+  updateKeyMap :: Either Keymap String -> (String, String) -> IO (Either Keymap String)
+  updateKeyMap (Right duplicateKey) _ = return $ Right duplicateKey
+  updateKeyMap (Left keymap) (k, a) =
     if Map.member k keymap
       then return $ Right k
       else do
         checkedKey <- checkKey $ map toUpper k
-        buildKeymap' (Map.insert checkedKey a keymap) xs
+        return $ Left (Map.insert checkedKey a keymap)
 
   checkKey :: String -> IO String
   checkKey k =

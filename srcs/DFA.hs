@@ -36,8 +36,7 @@ buildFinishingStates combos states actions = do
         let actionIdx = actions Map.! lastAction
         let row = finishingStates Array.! stateIdx Array.// [(actionIdx, (finishingStates Array.! stateIdx Array.! actionIdx) ++ [combo])]
         finishingStates Array.// [(stateIdx, row)]
-      else
-        finishingStates
+      else finishingStates
 
 buildTransitions :: DFAStates -> DFAActions -> DFATransitions
 buildTransitions states actions = do
@@ -51,8 +50,7 @@ buildTransitions states actions = do
   updateStateAction :: [String] -> DFATransitions -> String -> DFATransitions
   updateStateAction state transitions action = do
     let suffix = state ++ [action]
-    let transitions' = findAndUpdateTransition transitions state action suffix
-    transitions'
+    findAndUpdateTransition transitions state action suffix
 
   findAndUpdateTransition :: DFATransitions -> [String] -> String -> [String] -> DFATransitions
   findAndUpdateTransition transitions state action suffix = do
@@ -65,10 +63,8 @@ buildTransitions states actions = do
         transitions Array.// [(stateIdx, updatedInnerArray)]
       else
         if not (null suffix)
-          then
-            findAndUpdateTransition transitions state action (tail suffix)
-          else
-            transitions
+          then findAndUpdateTransition transitions state action (tail suffix)
+          else transitions
 
 buildDFA :: [Combo] -> DFA
 buildDFA combos = do
