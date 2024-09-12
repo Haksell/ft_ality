@@ -18,12 +18,6 @@ data DFA = DFA
   , dfaTransitions :: DFATransitions
   }
 
-buildActions :: [Combo] -> DFAActions
-buildActions combos = reverseIndex $ concatMap comboActions combos
-
-buildStates :: [Combo] -> DFAStates
-buildStates combos = reverseIndex $ concatMap ((\x -> map (`take` x) [0 .. length x]) . comboActions) combos
-
 buildFinishingStates :: [Combo] -> DFAStates -> DFAActions -> DFAFinishingStates
 buildFinishingStates combos states actions = do
   let empty = arrayFull (length states) (length actions) []
@@ -78,8 +72,8 @@ buildTransitions states actions = do
 
 buildDFA :: [Combo] -> DFA
 buildDFA combos = do
-  let actions = buildActions combos
-  let states = buildStates combos
+  let actions = reverseIndex $ concatMap comboActions combos
+  let states = reverseIndex $ concatMap ((\x -> map (`take` x) [0 .. length x]) . comboActions) combos
   DFA
     { dfaState = 0
     , dfaActions = actions

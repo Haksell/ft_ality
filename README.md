@@ -7,6 +7,7 @@
 -   [ ] no utility functions at the module level, everything is nested
 
 -   [ ] `parseCombos` is problematic
+-   [ ] `f keymap`
 
 ## Resources
 

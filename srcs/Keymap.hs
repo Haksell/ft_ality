@@ -10,25 +10,6 @@ import Utils (isAsciiLetter, panic)
 
 type Keymap = Map.Map String String
 
-parseKeymap :: [String] -> IO Keymap
-parseKeymap keymapSection = do
-  mappings <- mapM parseMapping keymapSection
-  keymapOrDuplicate <- buildKeymap mappings
-  case keymapOrDuplicate of
-    Left keymap -> return keymap
-    Right duplicate -> panic $ "Duplicate key found: " ++ duplicate
-
-buildKeymap :: [(String, String)] -> IO (Either Keymap String)
-buildKeymap = f Map.empty
- where
-  f keymap [] = return $ Left keymap
-  f keymap ((k, a) : xs) =
-    if Map.member k keymap
-      then return $ Right k
-      else do
-        checkedKey <- checkKey $ map toUpper k
-        f (Map.insert checkedKey a keymap) xs
-
 validKeys :: [String]
 validKeys = ["UP", "RIGHT", "DOWN", "LEFT"]
 
@@ -48,11 +29,30 @@ validButtons =
   , "CONTROLLERBUTTONLEFTSTICK"
   ]
 
-checkKey :: String -> IO String
-checkKey k =
-  if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys || k `elem` validButtons
-    then return k
-    else panic $ "Invalid key: " ++ k
+parseKeymap :: [String] -> IO Keymap
+parseKeymap keymapSection = do
+  mappings <- mapM parseMapping keymapSection
+  keymapOrDuplicate <- buildKeymap mappings
+  case keymapOrDuplicate of
+    Left keymap -> return keymap
+    Right duplicate -> panic $ "Duplicate key found: " ++ duplicate
+
+buildKeymap :: [(String, String)] -> IO (Either Keymap String)
+buildKeymap = f Map.empty
+ where
+  f keymap [] = return $ Left keymap
+  f keymap ((k, a) : xs) =
+    if Map.member k keymap
+      then return $ Right k
+      else do
+        checkedKey <- checkKey $ map toUpper k
+        f (Map.insert checkedKey a keymap) xs
+
+  checkKey :: String -> IO String
+  checkKey k =
+    if length k == 1 && isAsciiLetter (head k) || k `elem` validKeys || k `elem` validButtons
+      then return k
+      else panic $ "Invalid key: " ++ k
 
 parseMapping :: String -> IO (String, String)
 parseMapping keymapLine = do
