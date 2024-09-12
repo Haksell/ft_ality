@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings #-}
-
 module Args (Args (..), parseAndValidateArgs) where
 
 import Data.List (isSuffixOf)

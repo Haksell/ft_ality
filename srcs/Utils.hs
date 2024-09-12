@@ -1,5 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
-
 module Utils where
 
 import Data.Array (listArray)
