@@ -1,6 +1,6 @@
 import Args (Args (..), parseAndValidateArgs)
 import Colors (Color (..), putColorful)
-import Combo (Combo (..))
+import Combo (Combo (..), printCombos)
 import Control.Monad (when)
 import DFA (DFA, advanceDFA)
 import Data.List (find, intercalate, isSuffixOf)
@@ -10,15 +10,7 @@ import Keymap (Keymap, printKeymap)
 import Parsing (parseFile)
 import Utils (enqueue, prefixes)
 
-printInfo :: Keymap -> [Combo] -> Bool -> IO ()
-printInfo keymap combos gamepad = do
-  printKeymap keymap gamepad
-  putColorful Green "=== COMBOS ==="
-  mapM_ printCombo combos
-  putColorful Green (replicate 40 '=')
- where
-  printCombo :: Combo -> IO ()
-  printCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
+type GetAction = Keymap -> IO (Maybe String)
 
 handleAction :: Bool -> String -> [Combo] -> DFA -> [String] -> Int -> IO ([String], DFA)
 handleAction debug action combos dfa queue maxSize = do
@@ -56,17 +48,6 @@ handleAction debug action combos dfa queue maxSize = do
         ++ "/"
         ++ show (comboLen combo)
 
-type GetAction = Keymap -> IO (Maybe String)
-
-gameLoop :: GetAction -> Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
-gameLoop getAction debug keymap combos dfa queue maxSize = do
-  action <- getAction keymap
-  case action of
-    Nothing -> return ()
-    Just a -> do
-      (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
-      gameLoop getAction debug keymap combos newDFA newQueue maxSize
-
 main :: IO ()
 main = do
   args <- parseAndValidateArgs
@@ -77,3 +58,18 @@ main = do
   let debug = argDebug args
   let maxSize = maximum $ map (length . comboActions) combos
   gameLoop getAction debug keymap combos dfa [] maxSize
+ where
+  printInfo :: Keymap -> [Combo] -> Bool -> IO ()
+  printInfo keymap combos gamepad = do
+    printKeymap keymap gamepad
+    printCombos combos
+    putColorful Green (replicate 40 '=')
+
+  gameLoop :: GetAction -> Bool -> Keymap -> [Combo] -> DFA -> [String] -> Int -> IO ()
+  gameLoop getAction debug keymap combos dfa queue maxSize = do
+    action <- getAction keymap
+    case action of
+      Nothing -> return ()
+      Just a -> do
+        (newQueue, newDFA) <- handleAction debug a combos dfa queue maxSize
+        gameLoop getAction debug keymap combos newDFA newQueue maxSize

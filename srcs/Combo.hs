@@ -1,10 +1,11 @@
 {-# LANGUAGE InstanceSigs #-}
 
-module Combo (Combo (..), parseCombos) where
+module Combo (Combo (..), parseCombos, printCombos) where
 
-import Colors (Color (..), colored)
+import Colors (Color (..), colored, putColorful)
 import Control.Monad (foldM, when)
 import Data.Functor ((<&>))
+import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import qualified Data.Set as Set
 import Utils (panic)
@@ -52,3 +53,11 @@ parseCombos comboLines possibleActions = foldM addCombo ([], Set.empty) comboLin
             , comboLen = length actions
             }
       _ -> panic "Combo line should be in the following format: actions/name/fighter"
+
+printCombos :: [Combo] -> IO ()
+printCombos combos = do
+  putColorful Green "=== COMBOS ==="
+  mapM_ printCombo combos
+ where
+  printCombo :: Combo -> IO ()
+  printCombo combo = putStrLn $ comboFighter combo ++ ": " ++ comboName combo ++ ": " ++ intercalate ", " (comboActions combo)
